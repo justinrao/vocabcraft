@@ -1,0 +1,28 @@
+{
+    "vocabulary": [
+        {
+            "id": "ww4l12-1",
+            "word": "intend",
+            "meaning": "To plan; to have in mind.",
+            "example": "I intend to give a piano recital on Monday.",
+            "options": [
+                "To plan; to have in mind.",
+                "To guess something.",
+                "To forget on purpose.",
+                "To change your mind."
+            ]
+        },
+        {
+            "id": "ww4l12-2",
+            "word": "jeer",
+            "meaning": "To speak or cry out in scorn; to mock.",
+            "example": "My brother told me to ignore the older boys if they jeered when I sang.",
+            "options": [
+                "To speak or cry out in scorn; to mock.",
+                "To speak kindly.",
+                "To help someone.",
+                "To teach a lesson."
+            ]
+        }
+    ]
+} 

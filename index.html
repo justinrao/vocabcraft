@@ -1339,6 +1339,20 @@
                     return;
                 }
 
+                // Show loading state
+                const loadingMessage = document.createElement('div');
+                loadingMessage.style.position = 'fixed';
+                loadingMessage.style.top = '50%';
+                loadingMessage.style.left = '50%';
+                loadingMessage.style.transform = 'translate(-50%, -50%)';
+                loadingMessage.style.padding = '20px';
+                loadingMessage.style.background = 'rgba(0, 0, 0, 0.8)';
+                loadingMessage.style.color = 'white';
+                loadingMessage.style.borderRadius = '10px';
+                loadingMessage.style.zIndex = '9999';
+                loadingMessage.textContent = 'Loading vocabulary...';
+                document.body.appendChild(loadingMessage);
+
                 // Hide profile UI
                 profileContainer.style.display = 'none';
 
@@ -1353,16 +1367,16 @@
                 console.log('Creating new game instance');
                 window.game = new VocabCraft(this, profileName);
 
-                // Load game state
-                console.log('Loading game state');
-                window.game.loadGame(gameState);
-
-                // Verify game state
-                console.log('Verifying game state after load:', {
-                    hasCharacter: !!window.game.character,
-                    hasInventory: !!document.getElementById('inventorySelector'),
-                    hasQuestion: !!document.getElementById('question'),
-                    hasOptions: !!document.getElementById('options')
+                // Remove loading message when vocabulary is loaded
+                window.game.loadVocabulary().then(() => {
+                    document.body.removeChild(loadingMessage);
+                    // Load game state
+                    console.log('Loading game state');
+                    window.game.loadGame(gameState);
+                }).catch(error => {
+                    console.error('Error loading vocabulary:', error);
+                    loadingMessage.textContent = 'Error loading vocabulary. Please refresh the page.';
+                    loadingMessage.style.background = 'rgba(255, 0, 0, 0.8)';
                 });
             }
 
@@ -1421,7 +1435,7 @@
                 console.log('Initializing VocabCraft with profile:', profileName);
                 this.profileManager = profileManager;
                 this.profileName = profileName;
-                this.vocabulary = vocabulary;
+                this.vocabulary = [];
                 this.currentQuestion = 0;
                 this.score = 0;
                 this.blocks = [];
@@ -1433,9 +1447,36 @@
                 };
                 this.selectedBlockType = null;
 
-                // Initialize game components
-                this.initGame();
-                this.setupAutoSave();
+                // Load vocabulary before initializing the game
+                this.loadVocabulary().then(() => {
+                    // Initialize game components
+                    this.initGame();
+                    this.setupAutoSave();
+                });
+            }
+
+            async loadVocabulary() {
+                try {
+                    // Try to load from the same directory first (for local development)
+                    const response = await fetch('./vocabulary.json');
+                    if (!response.ok) {
+                        // If that fails, try loading from the GitHub Pages URL
+                        const githubResponse = await fetch('https://justinrao.github.io/vocabcraft/vocabulary.json');
+                        if (!githubResponse.ok) {
+                            throw new Error('Failed to load vocabulary');
+                        }
+                        const data = await githubResponse.json();
+                        this.vocabulary = data.vocabulary;
+                    } else {
+                        const data = await response.json();
+                        this.vocabulary = data.vocabulary;
+                    }
+                    console.log('Vocabulary loaded successfully:', this.vocabulary);
+                } catch (error) {
+                    console.error('Error loading vocabulary:', error);
+                    // Fallback to empty vocabulary
+                    this.vocabulary = [];
+                }
             }
 
             initGame() {
