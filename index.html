@@ -19,6 +19,8 @@
             background-image: url('https://raw.githubusercontent.com/misode/mcmeta/master/assets/minecraft/textures/block/grass_block_side.png');
             background-size: 64px 64px;
             image-rendering: pixelated;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
 
         h1 {
@@ -27,6 +29,7 @@
             font-size: 3em;
             margin-bottom: 20px;
             text-transform: uppercase;
+            text-align: center;
         }
 
         .game-container {
@@ -42,7 +45,6 @@
 
         .quiz-section {
             display: none;
-            /* Hide quiz section initially */
             background-color: #8B4513;
             padding: 20px;
             border-radius: 10px;
@@ -293,12 +295,15 @@
             background-color: rgba(0, 0, 0, 0.7);
             padding: 10px;
             border-radius: 10px;
-            display: none;
-            /* Hide by default */
+            display: none; /* Hide by default */
             gap: 10px;
             z-index: 1000;
             border: 2px solid #5c2e0a;
             min-height: 80px;
+        }
+
+        .inventory-selector.visible {
+            display: flex;
         }
 
         .inventory-slot {
@@ -312,6 +317,7 @@
             background-size: cover;
             image-rendering: pixelated;
             margin: 15px 5px;
+            touch-action: manipulation;
         }
 
         .inventory-slot:hover {
@@ -596,6 +602,129 @@
                 transform: scale(1);
             }
         }
+
+        /* Mobile Controls */
+        .mobile-controls {
+            display: none;
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 300px;
+            z-index: 1000;
+        }
+
+        .mobile-controls-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .mobile-control-button {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 2px solid #5c2e0a;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .mobile-control-button:active {
+            background-color: rgba(92, 46, 10, 0.7);
+        }
+
+        .mobile-action-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .game-container {
+                flex-direction: column;
+                width: 100%;
+                padding: 10px;
+            }
+
+            .quiz-section {
+                width: 100%;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+
+            .building-section {
+                width: 100%;
+                height: 300px;
+            }
+
+            .mobile-controls {
+                display: block;
+            }
+
+            .inventory-selector {
+                width: 90%;
+                max-width: 500px;
+                justify-content: center;
+                flex-wrap: wrap;
+                bottom: 10px;
+                padding: 5px;
+            }
+
+            .inventory-slot {
+                width: 40px;
+                height: 40px;
+                margin: 10px 3px;
+            }
+
+            .question {
+                font-size: 1.2em;
+            }
+
+            .option {
+                font-size: 1em;
+                padding: 12px;
+            }
+
+            .profile-container {
+                width: 90%;
+                max-width: none;
+                margin: 10px;
+            }
+
+            .profile-item {
+                padding: 10px;
+            }
+
+            .profile-name {
+                font-size: 1.1em;
+            }
+
+            .profile-stats {
+                font-size: 0.8em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .building-section {
+                height: 250px;
+            }
+
+            .inventory-slot {
+                width: 35px;
+                height: 35px;
+                margin: 8px 2px;
+            }
+
+            .mobile-control-button {
+                padding: 12px;
+            }
+        }
     </style>
 </head>
 
@@ -616,6 +745,20 @@
         <div class="building-section" id="buildingArea">
             <div class="inventory-selector" id="inventorySelector"></div>
         </div>
+        <!-- Add Mobile Controls -->
+        <div class="mobile-controls">
+            <div class="mobile-controls-grid">
+                <div class="mobile-control-button" data-action="up">↑</div>
+                <div class="mobile-control-button" data-action="left">←</div>
+                <div class="mobile-control-button" data-action="right">→</div>
+                <div class="mobile-control-button" data-action="down">↓</div>
+            </div>
+            <div class="mobile-action-buttons">
+                <div class="mobile-control-button" data-action="mine">Mine</div>
+                <div class="mobile-control-button" data-action="place">Place</div>
+                <div class="mobile-control-button" data-action="inventory">Inv</div>
+            </div>
+        </div>
     </div>
 
     <div class="profile-container" id="profileContainer">
@@ -627,7 +770,6 @@
         </div>
     </div>
 
-    <div class="save-indicator" id="saveIndicator">Game Saved!</div>
     <div id="adminStats"
         style="display:none; background:rgba(0, 0, 0, 0.9); color:#fff; padding:20px; border-radius:10px; max-width:90vw; max-height:80vh; overflow:auto; position:fixed; top:50px; left:50%; transform:translateX(-50%); z-index:2000; font-family: 'VT323', monospace;">
     </div>
@@ -635,11 +777,33 @@
     <script>
         // Block textures
         const blockTextures = {
-            'dirt': 'https://raw.githubusercontent.com/misode/mcmeta/master/assets/minecraft/textures/block/dirt.png',
-            'stone': 'https://raw.githubusercontent.com/misode/mcmeta/master/assets/minecraft/textures/block/stone.png',
-            'wood': 'https://raw.githubusercontent.com/misode/mcmeta/master/assets/minecraft/textures/block/oak_planks.png',
-            'glass': 'https://raw.githubusercontent.com/misode/mcmeta/master/assets/minecraft/textures/block/glass.png'
+            dirt: {
+                backgroundColor: 'rgb(139, 69, 19)',
+                backgroundImage: 'linear-gradient(45deg, rgb(139, 69, 19) 25%, rgb(160, 82, 45) 25%, rgb(160, 82, 45) 50%, rgb(139, 69, 19) 50%, rgb(139, 69, 19) 75%, rgb(160, 82, 45) 75%, rgb(160, 82, 45) 100%)',
+                backgroundSize: '8px 8px'
+            },
+            stone: {
+                backgroundColor: 'rgb(128, 128, 128)',
+                backgroundImage: 'linear-gradient(45deg, rgb(128, 128, 128) 25%, rgb(105, 105, 105) 25%, rgb(105, 105, 105) 50%, rgb(128, 128, 128) 50%, rgb(128, 128, 128) 75%, rgb(105, 105, 105) 75%, rgb(105, 105, 105) 100%)',
+                backgroundSize: '8px 8px'
+            },
+            wood: {
+                backgroundColor: 'rgb(160, 82, 45)',
+                backgroundImage: 'linear-gradient(90deg, rgb(160, 82, 45) 25%, rgb(139, 69, 19) 25%, rgb(139, 69, 19) 50%, rgb(160, 82, 45) 50%, rgb(160, 82, 45) 75%, rgb(139, 69, 19) 75%, rgb(139, 69, 19) 100%)',
+                backgroundSize: '8px 8px'
+            },
+            glass: {
+                backgroundColor: 'rgb(173, 216, 230)',
+                backgroundImage: 'linear-gradient(45deg, rgb(173, 216, 230) 25%, rgb(135, 206, 235) 25%, rgb(135, 206, 235) 50%, rgb(173, 216, 230) 50%, rgb(173, 216, 230) 75%, rgb(135, 206, 235) 75%, rgb(135, 206, 235) 100%)',
+                backgroundSize: '8px 8px',
+                opacity: '0.7'
+            }
         };
+
+        // Get block style
+        function getBlockStyle(type) {
+            return blockTextures[type] || blockTextures.dirt;
+        }
 
         // Profile Management
         class ProfileManager {
@@ -707,7 +871,6 @@
                 };
 
                 this.saveProfiles();
-                this.showSaveIndicator();
             }
 
             renderProfileList() {
@@ -808,7 +971,7 @@
 
                 // Show game UI elements
                 quizSection.style.display = 'block';
-                inventorySelector.style.display = 'flex';
+                inventorySelector.classList.add('visible');
 
                 // Clear any existing game state
                 this.cleanupGameState();
@@ -853,7 +1016,7 @@
                     quizSection.style.display = 'none';
                 }
                 if (inventorySelector) {
-                    inventorySelector.style.display = 'none';
+                    inventorySelector.classList.remove('visible');
                 }
 
                 // Clear game instance
@@ -869,7 +1032,7 @@
                 // Show profile UI
                 document.getElementById('profileContainer').style.display = 'block';
                 document.getElementById('quizSection').style.display = 'none';
-                document.getElementById('inventorySelector').style.display = 'none';
+                document.getElementById('inventorySelector').classList.remove('visible');
 
                 // Clean up game state
                 this.cleanupGameState();
@@ -1426,6 +1589,7 @@
             }
 
             initControls() {
+                // Keyboard controls
                 document.addEventListener('keydown', (e) => {
                     if (e.code === 'Space') {
                         this.mineBlock();
@@ -1482,6 +1646,60 @@
                         }
                     }
                 });
+
+                // Touch controls
+                const mobileControls = document.querySelector('.mobile-controls');
+                if (mobileControls) {
+                    mobileControls.addEventListener('touchstart', (e) => {
+                        const button = e.target.closest('.mobile-control-button');
+                        if (!button) return;
+
+                        e.preventDefault();
+                        const action = button.dataset.action;
+
+                        switch (action) {
+                            case 'up':
+                                this.moveCharacter(0, -this.speed, 'back');
+                                break;
+                            case 'down':
+                                this.moveCharacter(0, this.speed, 'front');
+                                break;
+                            case 'left':
+                                this.moveCharacter(-this.speed, 0, 'left');
+                                break;
+                            case 'right':
+                                this.moveCharacter(this.speed, 0, 'right');
+                                break;
+                            case 'mine':
+                                this.mineBlock();
+                                break;
+                            case 'place':
+                                this.placeBlockInFront();
+                                break;
+                            case 'inventory':
+                                this.selectNextBlock();
+                                break;
+                        }
+                    });
+                }
+            }
+
+            moveCharacter(deltaX, deltaY, direction) {
+                const newX = Math.max(0, Math.min(document.getElementById('buildingArea').clientWidth - 40, this.posX + deltaX));
+                const newY = Math.max(0, Math.min(document.getElementById('buildingArea').clientHeight - 40, this.posY + deltaY));
+
+                if (!this.willCollide(newX, newY)) {
+                    this.posX = newX;
+                    this.posY = newY;
+                    this.element.style.left = this.posX + 'px';
+                    this.element.style.top = this.posY + 'px';
+
+                    // Update facing direction
+                    this.element.className = 'character';
+                    if (direction) {
+                        this.element.classList.add('facing-' + direction);
+                    }
+                }
             }
 
             selectPreviousBlock() {
@@ -1972,23 +2190,76 @@
 
             const profileData = profileManager.profiles[currentProfile];
             let html = `<h2 style="color: #ffd700; text-shadow: 2px 2px #3f3f3f;">Stats for ${currentProfile}</h2>`;
-            html += '<table border="1" cellpadding="4" style="border-collapse:collapse; margin-bottom:20px; width:100%; color:#fff;">';
-            html += '<tr style="background-color: rgba(255, 193, 7, 0.3);"><th>Word</th><th>Meaning</th><th>Correct</th><th>Incorrect</th><th>Success Rate</th></tr>';
             
-            for (const q of vocabulary) {
-                const stat = (profileData.questionStats && profileData.questionStats[q.id]) || { correct: 0, incorrect: 0 };
-                const total = stat.correct + stat.incorrect;
-                const successRate = total > 0 ? ((stat.correct / total) * 100).toFixed(1) + '%' : 'N/A';
+            // Group questions by prefix
+            const groupedQuestions = {};
+            window.game.vocabulary.forEach(q => {
+                const prefix = q.id.split('-')[0];
+                if (!groupedQuestions[prefix]) {
+                    groupedQuestions[prefix] = [];
+                }
+                groupedQuestions[prefix].push(q);
+            });
+
+            // Sort prefixes with proper lesson number handling
+            const sortedPrefixes = Object.keys(groupedQuestions).sort((a, b) => {
+                // If both are ww4l prefixes, sort by lesson number
+                if (a.startsWith('ww4l') && b.startsWith('ww4l')) {
+                    const numA = parseInt(a.substring(4));
+                    const numB = parseInt(b.substring(4));
+                    return numA - numB;
+                }
+                // Otherwise, sort alphabetically
+                return a.localeCompare(b);
+            });
+
+            // Create table for each group
+            sortedPrefixes.forEach(prefix => {
+                // Format the prefix for display
+                let displayPrefix = prefix;
+                if (prefix.startsWith('ww4l')) {
+                    const lessonNum = prefix.substring(4);
+                    displayPrefix = `ww4 lesson${lessonNum.padStart(2, '0')}`;
+                }
                 
-                html += `<tr>
-                    <td>${q.word}</td>
-                    <td>${q.meaning}</td>
-                    <td>${stat.correct}</td>
-                    <td>${stat.incorrect}</td>
-                    <td>${successRate}</td>
-                </tr>`;
-            }
-            html += '</table>';
+                html += `<h3 style="color: #ffd700; margin-top: 20px;">${displayPrefix}</h3>`;
+                html += '<table border="1" cellpadding="4" style="border-collapse:collapse; margin-bottom:20px; width:100%; color:#fff;">';
+                html += '<tr style="background-color: rgba(255, 193, 7, 0.3);"><th>Word</th><th>Meaning</th><th>Correct</th><th>Incorrect</th><th>Success Rate</th></tr>';
+                
+                // Sort questions within group by their number
+                const sortedQuestions = groupedQuestions[prefix].sort((a, b) => {
+                    const numA = parseInt(a.id.split('-')[1]);
+                    const numB = parseInt(b.id.split('-')[1]);
+                    return numA - numB;
+                });
+
+                sortedQuestions.forEach(q => {
+                    const stat = (profileData.questionStats && profileData.questionStats[q.id]) || { correct: 0, incorrect: 0 };
+                    const total = stat.correct + stat.incorrect;
+                    const successRate = total > 0 ? ((stat.correct / total) * 100).toFixed(1) + '%' : 'N/A';
+                    
+                    // Color coding for success rate
+                    let successRateColor = '#fff'; // default white
+                    if (total > 0) {
+                        const rate = (stat.correct / total) * 100;
+                        if (rate >= 70) {
+                            successRateColor = '#4CAF50'; // green for good performance
+                        } else if (rate < 50) {
+                            successRateColor = '#f44336'; // red for poor performance
+                        }
+                    }
+                    
+                    html += `<tr>
+                        <td>${q.word}</td>
+                        <td>${q.meaning}</td>
+                        <td>${stat.correct}</td>
+                        <td>${stat.incorrect}</td>
+                        <td style="color: ${successRateColor}">${successRate}</td>
+                    </tr>`;
+                });
+                html += '</table>';
+            });
+
             html += '<button onclick="document.getElementById(\'adminStats\').style.display=\'none\'" style="background-color: rgba(255, 193, 7, 0.7); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-family: \'VT323\', monospace; font-size: 1.1em;">Close</button>';
             statsDiv.innerHTML = html;
             statsDiv.style.display = 'block';

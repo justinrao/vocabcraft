@@ -527,6 +527,366 @@
                 "A helper in an emergency.",
                 "A police officer."
             ]
+        },
+        {
+            "id": "ww4l17-1",
+            "word": "afford",
+            "meaning": "To be able to pay for; to be able to do; to give or provide.",
+            "example": "Can you afford a new pair of running shoes?",
+            "options": [
+                "To be able to pay for; to be able to do; to give or provide.",
+                "To talk with too much pride in oneself or in what one owns or has done; to brag.",
+                "Three or more notes of music played together.",
+                "Unusually good."
+            ]
+        },
+        {
+            "id": "ww4l17-2",
+            "word": "boast",
+            "meaning": "To talk with too much pride in oneself or in what one owns or has done; to brag.",
+            "example": "Mei boasted about all the games she had won.",
+            "options": [
+                "To talk with too much pride in oneself or in what one owns or has done; to brag.",
+                "Three or more notes of music played together.",
+                "Unusually good.",
+                "Lucky."
+            ]
+        },
+        {
+            "id": "ww4l17-3",
+            "word": "chord",
+            "meaning": "Three or more notes of music played together.",
+            "example": "Becca played a few chords on the guitar.",
+            "options": [
+                "Three or more notes of music played together.",
+                "Unusually good.",
+                "Lucky.",
+                "An edge made of short lengths of material such as thread, used to decorate clothes."
+            ]
+        },
+        {
+            "id": "ww4l17-4",
+            "word": "exceptional",
+            "meaning": "Unusually good.",
+            "example": "The fresh broccoli was of exceptional quality.",
+            "options": [
+                "Unusually good.",
+                "Lucky.",
+                "An edge made of short lengths of material such as thread, used to decorate clothes.",
+                "Plain and simple; not proud; modest."
+            ]
+        },
+        {
+            "id": "ww4l17-5",
+            "word": "fortunate",
+            "meaning": "Lucky.",
+            "example": "You are fortunate to have such kind friends.",
+            "options": [
+                "Lucky.",
+                "An edge made of short lengths of material such as thread, used to decorate clothes.",
+                "Plain and simple; not proud; modest.",
+                "A field of grass or wildflowers."
+            ]
+        },
+        {
+            "id": "ww4l17-6",
+            "word": "fringe",
+            "meaning": "An edge made of short lengths of material such as thread, used to decorate clothes; an outside edge.",
+            "example": "My skirt had fringe down the side.",
+            "options": [
+                "An edge made of short lengths of material such as thread, used to decorate clothes; an outside edge.",
+                "Plain and simple; not proud; modest.",
+                "A field of grass or wildflowers.",
+                "Filled with sorrow; very sad."
+            ]
+        },
+        {
+            "id": "ww4l17-7",
+            "word": "humble",
+            "meaning": "Plain and simple; not proud; modest; to bring down to defeat.",
+            "example": "Abraham Lincoln was raised in a humble log cabin.",
+            "options": [
+                "Plain and simple; not proud; modest; to bring down to defeat.",
+                "A field of grass or wildflowers.",
+                "Filled with sorrow; very sad.",
+                "Not willing to give in; stubborn."
+            ]
+        },
+        {
+            "id": "ww4l17-8",
+            "word": "meadow",
+            "meaning": "A field of grass or wildflowers.",
+            "example": "In the middle of the meadow stood a cow and its calf.",
+            "options": [
+                "A field of grass or wildflowers.",
+                "Filled with sorrow; very sad.",
+                "Not willing to give in; stubborn.",
+                "To ask for something that is felt to be very important; to beg."
+            ]
+        },
+        {
+            "id": "ww4l17-9",
+            "word": "melancholy",
+            "meaning": "Filled with sorrow; very sad; a state of sadness.",
+            "example": "The movie was so sad it left me in a melancholy mood.",
+            "options": [
+                "Filled with sorrow; very sad; a state of sadness.",
+                "Not willing to give in; stubborn.",
+                "To ask for something that is felt to be very important; to beg.",
+                "To throw oneself into; to push or force quickly; to drop sharply."
+            ]
+        },
+        {
+            "id": "ww4l17-10",
+            "word": "obstinate",
+            "meaning": "Not willing to give in; stubborn.",
+            "example": "You can't persuade him to do anything—he's too obstinate.",
+            "options": [
+                "Not willing to give in; stubborn.",
+                "To ask for something that is felt to be very important; to beg.",
+                "To throw oneself into; to push or force quickly; to drop sharply.",
+                "To become less strict; to give in to someone or something."
+            ]
+        },
+        {
+            "id": "ww4l17-11",
+            "word": "plead",
+            "meaning": "To ask for something that is felt to be very important; to beg; to respond to a charge by a court of law.",
+            "example": "The children pleaded with their parents to let them stay up late.",
+            "options": [
+                "To ask for something that is felt to be very important; to beg; to respond to a charge by a court of law.",
+                "To throw oneself into; to push or force quickly; to drop sharply.",
+                "To become less strict; to give in to someone or something.",
+                "To give to someone to look over or decide about."
+            ]
+        },
+        {
+            "id": "ww4l17-12",
+            "word": "plunge",
+            "meaning": "To throw oneself into; to push or force quickly; to drop sharply; a sudden dive or fall.",
+            "example": "We plunged into the pool and swam a few laps.",
+            "options": [
+                "To throw oneself into; to push or force quickly; to drop sharply; a sudden dive or fall.",
+                "To become less strict; to give in to someone or something.",
+                "To give to someone to look over or decide about.",
+                "To walk slowly and heavily, as though with great effort."
+            ]
+        },
+        {
+            "id": "ww4l17-13",
+            "word": "relent",
+            "meaning": "To become less strict; to give in to someone or something.",
+            "example": "My parents finally relented and said I could go to the concert.",
+            "options": [
+                "To become less strict; to give in to someone or something.",
+                "To give to someone to look over or decide about.",
+                "To walk slowly and heavily, as though with great effort.",
+                "To be able to pay for; to be able to do; to give or provide."
+            ]
+        },
+        {
+            "id": "ww4l17-14",
+            "word": "submit",
+            "meaning": "To give to someone to look over or decide about; to give in to someone or something.",
+            "example": "Each student is asked to submit a picture for the yearbook.",
+            "options": [
+                "To give to someone to look over or decide about; to give in to someone or something.",
+                "To walk slowly and heavily, as though with great effort.",
+                "To be able to pay for; to be able to do; to give or provide.",
+                "To talk with too much pride in oneself or in what one owns or has done; to brag."
+            ]
+        },
+        {
+            "id": "ww4l17-15",
+            "word": "trudge",
+            "meaning": "To walk slowly and heavily, as though with great effort.",
+            "example": "We had to trudge through deep snow to reach the door.",
+            "options": [
+                "To walk slowly and heavily, as though with great effort.",
+                "To be able to pay for; to be able to do; to give or provide.",
+                "To talk with too much pride in oneself or in what one owns or has done; to brag.",
+                "Three or more notes of music played together."
+            ]
+        },
+        {
+            "id": "ww4l15-1",
+            "word": "apparent",
+            "meaning": "Clear; seeming or appearing to be.",
+            "example": "It's apparent that no one's home.",
+            "options": [
+                "Clear; seeming or appearing to be.",
+                "To forbid by law or rule.",
+                "To focus all one's thoughts or efforts on.",
+                "To be about; to interest."
+            ]
+        },
+        {
+            "id": "ww4l15-2",
+            "word": "ban",
+            "meaning": "To forbid, especially by passing a law or making a rule.",
+            "example": "The hospital bans children from visiting patients.",
+            "options": [
+                "To forbid, especially by passing a law or making a rule.",
+                "To focus all one's thoughts or efforts on.",
+                "To be about; to interest.",
+                "To think about carefully."
+            ]
+        },
+        {
+            "id": "ww4l15-3",
+            "word": "concentrate",
+            "meaning": "To focus all one's thoughts or efforts on.",
+            "example": "It's hard for me to concentrate on homework when I hear the kids outside.",
+            "options": [
+                "To focus all one's thoughts or efforts on.",
+                "To be about; to interest.",
+                "To think about carefully.",
+                "To compare in order to show differences."
+            ]
+        },
+        {
+            "id": "ww4l15-4",
+            "word": "concern",
+            "meaning": "To be about; to interest; to trouble or worry.",
+            "example": "Homelessness is a subject that should concern everyone.",
+            "options": [
+                "To be about; to interest; to trouble or worry.",
+                "To think about carefully.",
+                "To compare in order to show differences.",
+                "Easily broken or damaged."
+            ]
+        },
+        {
+            "id": "ww4l15-5",
+            "word": "consider",
+            "meaning": "To think about carefully.",
+            "example": "Because my dog-sitting job is temporary, it's time to consider what I should do next.",
+            "options": [
+                "To think about carefully.",
+                "To compare in order to show differences.",
+                "Easily broken or damaged.",
+                "Something that is likely to do harm."
+            ]
+        },
+        {
+            "id": "ww4l15-6",
+            "word": "contrast",
+            "meaning": "To compare in order to show the differences.",
+            "example": "Before deciding on the design for the new gym, we are going to contrast the two suggested plans.",
+            "options": [
+                "To compare in order to show the differences.",
+                "Easily broken or damaged.",
+                "Something that is likely to do harm.",
+                "To swoop down on and seize."
+            ]
+        },
+        {
+            "id": "ww4l15-7",
+            "word": "fragile",
+            "meaning": "Easily broken or damaged.",
+            "example": "This ancient chair is so fragile that it would break if anyone sat on it.",
+            "options": [
+                "Easily broken or damaged.",
+                "Something that is likely to do harm.",
+                "To swoop down on and seize.",
+                "Quick; without too much time passing."
+            ]
+        },
+        {
+            "id": "ww4l15-8",
+            "word": "menace",
+            "meaning": "Something that is likely to do harm or is regarded as dangerous.",
+            "example": "Icebergs are a menace to ships in the North Atlantic.",
+            "options": [
+                "Something that is likely to do harm or is regarded as dangerous.",
+                "To swoop down on and seize.",
+                "Quick; without too much time passing.",
+                "Of a time just before the present."
+            ]
+        },
+        {
+            "id": "ww4l15-9",
+            "word": "pounce",
+            "meaning": "To swoop down on and seize.",
+            "example": "The cat pounced on the mouse as soon as it ventured from its hole.",
+            "options": [
+                "To swoop down on and seize.",
+                "Quick; without too much time passing.",
+                "Of a time just before the present.",
+                "Something that stands for something else."
+            ]
+        },
+        {
+            "id": "ww4l15-10",
+            "word": "prompt",
+            "meaning": "Quick; without too much time passing; to cause to act.",
+            "example": "I sent a prompt reply to Ahmed's letter.",
+            "options": [
+                "Quick; without too much time passing; to cause to act.",
+                "Of a time just before the present.",
+                "Something that stands for something else.",
+                "The claw of a bird, usually one that kills animals for food."
+            ]
+        },
+        {
+            "id": "ww4l15-11",
+            "word": "recent",
+            "meaning": "Of a time just before the present.",
+            "example": "The recent outbreak of the flu resulted in the temporary closing of our school.",
+            "options": [
+                "Of a time just before the present.",
+                "Something that stands for something else.",
+                "The claw of a bird, usually one that kills animals for food.",
+                "Something, such as a prize or award, given to show success in an activity."
+            ]
+        },
+        {
+            "id": "ww4l15-12",
+            "word": "symbol",
+            "meaning": "Something that stands for something else.",
+            "example": "The dove is a symbol of peace.",
+            "options": [
+                "Something that stands for something else.",
+                "The claw of a bird, usually one that kills animals for food.",
+                "Something, such as a prize or award, given to show success in an activity.",
+                "Spread or stretched out over a large area."
+            ]
+        },
+        {
+            "id": "ww4l15-13",
+            "word": "talon",
+            "meaning": "The claw of a bird, usually one that kills animals for food.",
+            "example": "The hawk clutched its victim firmly in its talons.",
+            "options": [
+                "The claw of a bird, usually one that kills animals for food.",
+                "Something, such as a prize or award, given to show success in an activity.",
+                "Spread or stretched out over a large area.",
+                "Clear; seeming or appearing to be."
+            ]
+        },
+        {
+            "id": "ww4l15-14",
+            "word": "trophy",
+            "meaning": "Something, such as a prize or award, given to show success in an activity.",
+            "example": "The Helmsman Trophy is a top football honor.",
+            "options": [
+                "Something, such as a prize or award, given to show success in an activity.",
+                "Spread or stretched out over a large area.",
+                "Clear; seeming or appearing to be.",
+                "To forbid, especially by passing a law or making a rule."
+            ]
+        },
+        {
+            "id": "ww4l15-15",
+            "word": "widespread",
+            "meaning": "Spread or stretched out over a large area.",
+            "example": "The widespread wings of the golden eagle can reach eight feet from tip to tip.",
+            "options": [
+                "Spread or stretched out over a large area.",
+                "Clear; seeming or appearing to be.",
+                "To forbid, especially by passing a law or making a rule.",
+                "To focus all one's thoughts or efforts on."
+            ]
         }
     ]
-} 
+}
