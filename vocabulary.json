@@ -1,6 +1,366 @@
 {
     "vocabulary": [
         {
+            "id": "ww4l6-1",
+            "word": "applaud",
+            "meaning": "To show approval, especially by clapping hands.",
+            "example": "The audience applauded until the actors came back on stage to take another bow.",
+            "options": [
+                "To show approval, especially by clapping hands.",
+                "To make something secret.",
+                "To trick someone.",
+                "To finish something completely."
+            ]
+        },
+        {
+            "id": "ww4l6-2",
+            "word": "crafty",
+            "meaning": "Skilled at tricking others.",
+            "example": "Templeton, the crafty and mean rat in Charlotte's Web, adds humor to the book.",
+            "options": [
+                "Skilled at tricking others.",
+                "Very beautiful.",
+                "Dull and without color.",
+                "To speak suddenly and with strong feeling."
+            ]
+        },
+        {
+            "id": "ww4l6-3",
+            "word": "disclose",
+            "meaning": "To make known.",
+            "example": "The principal told us we must disclose the names of those who broke the window.",
+            "options": [
+                "To make known.",
+                "To hide something.",
+                "To finish something completely.",
+                "To show approval by clapping."
+            ]
+        },
+        {
+            "id": "ww4l6-4",
+            "word": "drab",
+            "meaning": "Dull and without color; not cheerful or colorful.",
+            "example": "A brown sparrow is a drab little bird compared to a bright red cardinal.",
+            "options": [
+                "Dull and without color; not cheerful or colorful.",
+                "Finely done or made; very beautiful.",
+                "Skilled at tricking others.",
+                "Having nothing left out; whole; complete."
+            ]
+        },
+        {
+            "id": "ww4l6-5",
+            "word": "entire",
+            "meaning": "Having nothing left out; whole; complete.",
+            "example": "I recited the entire Robert Frost poem from memory.",
+            "options": [
+                "Having nothing left out; whole; complete.",
+                "To make known.",
+                "Dull and without color.",
+                "To speak suddenly and with strong feeling."
+            ]
+        },
+        {
+            "id": "ww4l6-6",
+            "word": "exclaim",
+            "meaning": "To speak suddenly and with strong feeling.",
+            "example": "'Today was the worst day of my life!' she exclaimed.",
+            "options": [
+                "To speak suddenly and with strong feeling.",
+                "To show approval by clapping.",
+                "Finely done or made; very beautiful.",
+                "Skilled at tricking others."
+            ]
+        },
+        {
+            "id": "ww4l6-7",
+            "word": "exquisite",
+            "meaning": "Finely done or made; very beautiful.",
+            "example": "The exquisite wood carvings on the museum door came from the island of Bali.",
+            "options": [
+                "Finely done or made; very beautiful.",
+                "Dull and without color.",
+                "To make known.",
+                "Having nothing left out; whole; complete."
+            ]
+        },
+        {
+            "id": "ww4l7-1",
+            "word": "intend",
+            "meaning": "To plan; to have in mind.",
+            "example": "I intend to give a piano recital on Monday.",
+            "options": [
+                "To plan; to have in mind.",
+                "To mock or make fun of.",
+                "To move quickly.",
+                "To make pure by removing all unwanted matter."
+            ]
+        },
+        {
+            "id": "ww4l7-2",
+            "word": "jeer",
+            "meaning": "To speak or cry out in scorn; to mock.",
+            "example": "My brother told me to ignore the older boys if they jeered when I sang.",
+            "options": [
+                "To speak or cry out in scorn; to mock.",
+                "To look closely; to stare.",
+                "To move toward a goal.",
+                "To make pure by removing all unwanted matter."
+            ]
+        },
+        {
+            "id": "ww4l7-3",
+            "word": "peer",
+            "meaning": "To look closely; to stare, especially at something that is hard to see or to understand.",
+            "example": "Ahmed peered at the sign, trying to read what it said.",
+            "options": [
+                "To look closely; to stare, especially at something that is hard to see or to understand.",
+                "To mock or make fun of.",
+                "To move quickly.",
+                "To plan; to have in mind."
+            ]
+        },
+        {
+            "id": "ww4l7-4",
+            "word": "progress",
+            "meaning": "Moving toward a goal.",
+            "example": "The stormy sea slowed the small boat's progress.",
+            "options": [
+                "Moving toward a goal.",
+                "To look closely; to stare.",
+                "To mock or make fun of.",
+                "To make pure by removing all unwanted matter."
+            ]
+        },
+        {
+            "id": "ww4l7-5",
+            "word": "refine",
+            "meaning": "To make pure by removing all unwanted matter.",
+            "example": "We take oil from deep inside the earth and refine it into gasoline.",
+            "options": [
+                "To make pure by removing all unwanted matter.",
+                "To plan; to have in mind.",
+                "To move quickly.",
+                "To mock or make fun of."
+            ]
+        },
+        {
+            "id": "ww4l7-6",
+            "word": "scoundrel",
+            "meaning": "A mean or wicked person.",
+            "example": "I am glad the police caught the scoundrel who stole my wallet.",
+            "options": [
+                "A mean or wicked person.",
+                "To make pure by removing all unwanted matter.",
+                "To look closely; to stare.",
+                "To plan; to have in mind."
+            ]
+        },
+        {
+            "id": "ww4l7-7",
+            "word": "uneasy",
+            "meaning": "Not comfortable; worried or nervous.",
+            "example": "I felt uneasy walking down the dark street until I observed my dad on the corner.",
+            "options": [
+                "Not comfortable; worried or nervous.",
+                "To plan; to have in mind.",
+                "To mock or make fun of.",
+                "To move quickly."
+            ]
+        },
+        {
+            "id": "ww4l7-8",
+            "word": "vain",
+            "meaning": "Having too high an opinion of one's looks or achievements.",
+            "example": "Charlie is so vain he has a full-length mirror in every room.",
+            "options": [
+                "Having too high an opinion of one's looks or achievements.",
+                "Not comfortable; worried or nervous.",
+                "To make pure by removing all unwanted matter.",
+                "To look closely; to stare."
+            ]
+        },
+        {
+            "id": "ww4l7-9",
+            "word": "alter",
+            "meaning": "To change in some way; to make or become different.",
+            "example": "Let's alter our uniforms so they will fit better.",
+            "options": [
+                "To change in some way; to make or become different.",
+                "To plan; to have in mind.",
+                "To mock or make fun of.",
+                "To move quickly."
+            ]
+        },
+        {
+            "id": "ww4l7-10",
+            "word": "confuse",
+            "meaning": "To make or become unclear or mixed up in the mind.",
+            "example": "That math problem totally confused me.",
+            "options": [
+                "To make or become unclear or mixed up in the mind.",
+                "To look closely; to stare.",
+                "To plan; to have in mind.",
+                "To make pure by removing all unwanted matter."
+            ]
+        },
+        {
+            "id": "ww4l7-11",
+            "word": "distribute",
+            "meaning": "To give out; to divide among several or many.",
+            "example": "DeRay distributed programs before the concert.",
+            "options": [
+                "To give out; to divide among several or many.",
+                "To mock or make fun of.",
+                "To move quickly.",
+                "To plan; to have in mind."
+            ]
+        },
+        {
+            "id": "ww4l7-12",
+            "word": "eject",
+            "meaning": "To force or throw out.",
+            "example": "When the seventh graders refused to listen, the coach ejected them from the team meeting.",
+            "options": [
+                "To force or throw out.",
+                "To make pure by removing all unwanted matter.",
+                "To look closely; to stare.",
+                "To plan; to have in mind."
+            ]
+        },
+        {
+            "id": "ww4l7-13",
+            "word": "embrace",
+            "meaning": "To hold closely in one's arms; to hug.",
+            "example": "My parents embraced me when I got home from school.",
+            "options": [
+                "To hold closely in one's arms; to hug.",
+                "To force or throw out.",
+                "To give out; to divide among several or many.",
+                "To make or become unclear or mixed up in the mind."
+            ]
+        },
+        {
+            "id": "ww4l7-14",
+            "word": "equip",
+            "meaning": "To provide with what is needed.",
+            "example": "All new cars now come equipped with airbags.",
+            "options": [
+                "To provide with what is needed.",
+                "To hold closely in one's arms; to hug.",
+                "To force or throw out.",
+                "To give out; to divide among several or many."
+            ]
+        },
+        {
+            "id": "ww4l7-15",
+            "word": "flexible",
+            "meaning": "Able to bend easily.",
+            "example": "Dancers and gymnasts have very flexible bodies.",
+            "options": [
+                "Able to bend easily.",
+                "To provide with what is needed.",
+                "To hold closely in one's arms; to hug.",
+                "To force or throw out."
+            ]
+        },
+        {
+            "id": "ww4l7-16",
+            "word": "instant",
+            "meaning": "A moment; a very short period of time.",
+            "example": "It took Luis only an instant to calculate the amount of paint we would need.",
+            "options": [
+                "A moment; a very short period of time.",
+                "Able to bend easily.",
+                "To provide with what is needed.",
+                "To hold closely in one's arms; to hug."
+            ]
+        },
+        {
+            "id": "ww4l7-17",
+            "word": "keen",
+            "meaning": "Having a sharp edge.",
+            "example": "The keen blade of the knife sliced through the loaf of bread with ease.",
+            "options": [
+                "Having a sharp edge.",
+                "A moment; a very short period of time.",
+                "Able to bend easily.",
+                "To provide with what is needed."
+            ]
+        },
+        {
+            "id": "ww4l7-18",
+            "word": "limp",
+            "meaning": "To walk in an uneven way.",
+            "example": "I limped for two weeks after I fell on the ice.",
+            "options": [
+                "To walk in an uneven way.",
+                "Having a sharp edge.",
+                "A moment; a very short period of time.",
+                "Able to bend easily."
+            ]
+        },
+        {
+            "id": "ww4l7-19",
+            "word": "scurry",
+            "meaning": "To move quickly, with rapid little steps.",
+            "example": "The squirrel scurried up the tree as we approached.",
+            "options": [
+                "To move quickly, with rapid little steps.",
+                "To walk in an uneven way.",
+                "Having a sharp edge.",
+                "A moment; a very short period of time."
+            ]
+        },
+        {
+            "id": "ww4l7-20",
+            "word": "seize",
+            "meaning": "To grasp suddenly; to grab hold of.",
+            "example": "He seized my hand and begged me not to go.",
+            "options": [
+                "To grasp suddenly; to grab hold of.",
+                "To move quickly, with rapid little steps.",
+                "To walk in an uneven way.",
+                "Having a sharp edge."
+            ]
+        },
+        {
+            "id": "ww4l7-21",
+            "word": "shallow",
+            "meaning": "Not deep.",
+            "example": "We went wading in a shallow stream.",
+            "options": [
+                "Not deep.",
+                "To grasp suddenly; to grab hold of.",
+                "To move quickly, with rapid little steps.",
+                "To walk in an uneven way."
+            ]
+        },
+        {
+            "id": "ww4l7-22",
+            "word": "surround",
+            "meaning": "To enclose on all sides.",
+            "example": "The garden was surrounded by a high fence.",
+            "options": [
+                "To enclose on all sides.",
+                "Not deep.",
+                "To grasp suddenly; to grab hold of.",
+                "To move quickly, with rapid little steps."
+            ]
+        },
+        {
+            "id": "ww4l7-23",
+            "word": "victim",
+            "meaning": "One who is hurt or killed, or one who suffers.",
+            "example": "I am glad the police caught the scoundrel who stole my wallet.",
+            "options": [
+                "One who is hurt or killed, or one who suffers.",
+                "To enclose on all sides.",
+                "Not deep.",
+                "To grasp suddenly; to grab hold of."
+            ]
+        },
+        {
             "id": "ww4l12-1",
             "word": "intend",
             "meaning": "To plan; to have in mind.",
@@ -22,6 +382,150 @@
                 "To speak kindly.",
                 "To help someone.",
                 "To teach a lesson."
+            ]
+        },
+        {
+            "id": "ww4l12-3",
+            "word": "peer",
+            "meaning": "To look closely; to stare, especially at something that is hard to see or to understand.",
+            "example": "Ahmed peered at the sign, trying to read what it said.",
+            "options": [
+                "To look closely.",
+                "To walk quickly.",
+                "To listen carefully.",
+                "To cry loudly."
+            ]
+        },
+        {
+            "id": "ww4l12-4",
+            "word": "embrace",
+            "meaning": "To hold closely in one's arms; to hug.",
+            "example": "My parents embraced me when I got home from school.",
+            "options": [
+                "To hold closely in one's arms; to hug.",
+                "To wave at someone.",
+                "To push someone away.",
+                "To call someone over."
+            ]
+        },
+        {
+            "id": "ww4l12-5",
+            "word": "equip",
+            "meaning": "To provide with what is needed.",
+            "example": "All new cars now come equipped with airbags.",
+            "options": [
+                "To provide with what is needed.",
+                "To take away tools.",
+                "To clean something.",
+                "To start an engine."
+            ]
+        },
+        {
+            "id": "ww4l12-6",
+            "word": "flexible",
+            "meaning": "Able to adjust to new or different situations.",
+            "example": "Antonio is so flexible he can get along with anyone.",
+            "options": [
+                "Able to adjust to new or different situations.",
+                "Unable to move.",
+                "Very serious all the time.",
+                "Not willing to try new things."
+            ]
+        },
+        {
+            "id": "ww4l12-7",
+            "word": "instant",
+            "meaning": "A moment; a very short period of time.",
+            "example": "It took Luis only an instant to calculate the amount of paint we would need.",
+            "options": [
+                "A moment; a very short period of time.",
+                "An hour or more.",
+                "A planned schedule.",
+                "A slow action."
+            ]
+        },
+        {
+            "id": "ww4l12-8",
+            "word": "keen",
+            "meaning": "Showing a strong interest; eager.",
+            "example": "Marta signed up for lessons because she was keen to learn to play the guitar.",
+            "options": [
+                "Showing a strong interest; eager.",
+                "Uninterested and bored.",
+                "Very tired.",
+                "Not able to focus."
+            ]
+        },
+        {
+            "id": "ww4l12-9",
+            "word": "limp",
+            "meaning": "To walk in an uneven way.",
+            "example": "I limped for two weeks after I fell on the ice.",
+            "options": [
+                "To walk in an uneven way.",
+                "To walk proudly.",
+                "To run very fast.",
+                "To jump around."
+            ]
+        },
+        {
+            "id": "ww4l12-10",
+            "word": "scurry",
+            "meaning": "To move quickly, with rapid little steps.",
+            "example": "The squirrel scurried up the tree as we approached.",
+            "options": [
+                "To move quickly, with rapid little steps.",
+                "To move slowly and lazily.",
+                "To hop carefully.",
+                "To stay still."
+            ]
+        },
+        {
+            "id": "ww4l12-11",
+            "word": "seize",
+            "meaning": "To grasp suddenly; to grab hold of.",
+            "example": "He seized my hand and begged me not to go.",
+            "options": [
+                "To grasp suddenly; to grab hold of.",
+                "To drop carefully.",
+                "To offer something kindly.",
+                "To wave goodbye."
+            ]
+        },
+        {
+            "id": "ww4l12-12",
+            "word": "shallow",
+            "meaning": "Not deep.",
+            "example": "We went wading in a shallow stream.",
+            "options": [
+                "Not deep.",
+                "Very deep.",
+                "Cold and fast-moving.",
+                "Full of fish."
+            ]
+        },
+        {
+            "id": "ww4l12-13",
+            "word": "surround",
+            "meaning": "To enclose on all sides.",
+            "example": "The garden was surrounded by a high fence.",
+            "options": [
+                "To enclose on all sides.",
+                "To leave something open.",
+                "To cross a boundary.",
+                "To build something tall."
+            ]
+        },
+        {
+            "id": "ww4l12-14",
+            "word": "victim",
+            "meaning": "One who is hurt or killed, or one who suffers.",
+            "example": "The scoundrel denied that he had cheated his victims of their life savings.",
+            "options": [
+                "One who is hurt or killed, or one who suffers.",
+                "A person who wins something.",
+                "A helper in an emergency.",
+                "A police officer."
             ]
         }
     ]
