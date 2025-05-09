@@ -543,6 +543,14 @@
             background-color: rgba(244, 67, 54, 0.9);
         }
 
+        .game-control-button.admin {
+            background-color: rgba(255, 193, 7, 0.7);
+        }
+
+        .game-control-button.admin:hover {
+            background-color: rgba(255, 193, 7, 0.9);
+        }
+
         @keyframes blockAdded {
             0% {
                 transform: scale(0.5);
@@ -596,8 +604,8 @@
 
     <div class="game-container" id="gameContainer">
         <div class="game-controls">
-            <button class="game-control-button save" onclick="saveAndContinue()">Save</button>
-            <button class="game-control-button exit" onclick="saveAndExit()">Save & Exit</button>
+            <button class="game-control-button admin" onclick="showAdminStats()">Admin</button>
+            <button class="game-control-button exit" onclick="saveAndExit()">Exit</button>
         </div>
         <div class="profile-name-display" id="profileNameDisplay"></div>
         <div class="quiz-section" id="quizSection">
@@ -620,11 +628,8 @@
     </div>
 
     <div class="save-indicator" id="saveIndicator">Game Saved!</div>
-    <div class="admin-controls">
-        <button onclick="showAdminStats()">Admin: Show Stats</button>
-    </div>
     <div id="adminStats"
-        style="display:none; background:#fff; color:#000; padding:20px; border-radius:10px; max-width:90vw; max-height:80vh; overflow:auto; position:fixed; top:50px; left:50%; transform:translateX(-50%); z-index:2000;">
+        style="display:none; background:rgba(0, 0, 0, 0.9); color:#fff; padding:20px; border-radius:10px; max-width:90vw; max-height:80vh; overflow:auto; position:fixed; top:50px; left:50%; transform:translateX(-50%); z-index:2000; font-family: 'VT323', monospace;">
     </div>
 
     <script>
@@ -1621,25 +1626,22 @@
 
                 const gameState = {
                     score: this.score,
-                    // Save question id instead of index
                     currentQuestionId: this.vocabulary[this.currentQuestion]?.id || null,
-                    currentQuestion: this.currentQuestion, // for backward compatibility
+                    currentQuestion: this.currentQuestion,
                     blockCounts: currentBlockCounts,
-                    blocks: this.blocks.map(block => {
-                        const blockData = {
-                            type: this.character.getBlockType(block),
-                            x: parseInt(block.style.left),
-                            y: parseInt(block.style.top)
-                        };
-                        console.log('Saving block:', blockData);
-                        return blockData;
-                    }),
+                    blocks: this.blocks.map(block => ({
+                        type: this.character.getBlockType(block),
+                        x: parseInt(block.style.left),
+                        y: parseInt(block.style.top)
+                    })),
                     characterPosition: {
                         x: this.character.posX,
                         y: this.character.posY
-                    }
+                    },
+                    questionStats: this.profileManager.profiles[this.profileManager.currentProfile]?.questionStats || {}
                 };
-                console.log('Saving complete game state:', gameState);
+
+                console.log('Saving game state:', gameState);
                 this.profileManager.saveProfile(gameState);
                 return gameState;
             }
@@ -1793,15 +1795,41 @@
 
                     slot.addEventListener('click', () => {
                         if (this.blockCounts[blockInfo.type] > 0) {
-                            selector.querySelectorAll('.inventory-slot').forEach(s => {
-                                s.classList.remove('selected');
-                            });
-                            slot.classList.add('selected');
-                            this.selectedBlockType = blockInfo.type;
+                            this.selectBlock(slot);
                         }
                     });
                 });
+
+                // Select first available block by default
+                this.selectFirstAvailableBlock();
                 console.log('Inventory selector created with slots');
+            }
+
+            selectFirstAvailableBlock() {
+                const selector = document.getElementById('inventorySelector');
+                const slots = selector.querySelectorAll('.inventory-slot');
+                
+                // Find first available block
+                const availableSlot = Array.from(slots).find(slot => 
+                    this.blockCounts[slot.dataset.type] > 0
+                );
+
+                if (availableSlot) {
+                    this.selectBlock(availableSlot);
+                } else {
+                    // If no blocks available, deselect all
+                    this.selectedBlockType = null;
+                    slots.forEach(slot => slot.classList.remove('selected'));
+                }
+            }
+
+            selectBlock(slot) {
+                const selector = document.getElementById('inventorySelector');
+                selector.querySelectorAll('.inventory-slot').forEach(s => {
+                    s.classList.remove('selected');
+                });
+                slot.classList.add('selected');
+                this.selectedBlockType = slot.dataset.type;
             }
 
             updateSlotAppearance(slot, type) {
@@ -1817,6 +1845,10 @@
 
                 if (count === 0) {
                     slot.classList.add('empty');
+                    // If this was the selected block, select another available one
+                    if (this.selectedBlockType === type) {
+                        this.selectFirstAvailableBlock();
+                    }
                 } else {
                     slot.classList.remove('empty');
                 }
@@ -1867,6 +1899,9 @@
                             block.style.opacity = '1';
                             block.style.transform = 'scale(1)';
                         });
+
+                        // Save state after placing block
+                        this.saveGame();
                     }
                 }
             }
@@ -1877,6 +1912,15 @@
                     this.blockCounts[type]++;
                     console.log(`New count for ${type}:`, this.blockCounts[type]);
                     this.updateBlockCounts();
+                    
+                    // If this is the first block of this type, select it
+                    if (this.blockCounts[type] === 1) {
+                        const selector = document.getElementById('inventorySelector');
+                        const slot = selector.querySelector(`[data-type="${type}"]`);
+                        if (slot) {
+                            this.selectBlock(slot);
+                        }
+                    }
                 }
             }
         }
@@ -2183,7 +2227,6 @@
                 let minDistance = Infinity;
 
                 this.game.blocks.forEach(block => {
-                    // Skip blocks that are part of the inventory
                     if (block.closest('.block-palette')) return;
 
                     const blockX = parseInt(block.style.left);
@@ -2203,7 +2246,6 @@
 
                 if (closestBlock) {
                     const blockType = this.getBlockType(closestBlock);
-                    console.log('Mining block of type:', blockType); // Debug log
                     closestBlock.classList.add('mining');
                     closestBlock.style.animation = 'mining 0.5s ease-in-out';
 
@@ -2212,7 +2254,9 @@
                             closestBlock.remove();
                             this.game.blocks = this.game.blocks.filter(b => b !== closestBlock);
                             this.game.addBlock(blockType);
-                            console.log('Added block to inventory:', blockType); // Debug log
+                            
+                            // Save state after mining block
+                            this.game.saveGame();
                         }
                     }, 500);
                 }
@@ -2461,12 +2505,6 @@
             }
         }
 
-        function saveAndContinue() {
-            if (window.game) {
-                window.game.saveGame();
-            }
-        }
-
         function saveAndExit() {
             if (profileManager) {
                 profileManager.exitToProfile();
@@ -2480,21 +2518,44 @@
         function showAdminStats() {
             const statsDiv = document.getElementById('adminStats');
             if (!statsDiv) return;
-            const profiles = profileManager.profiles;
-            let html = '<h2>Admin: Profile Question Stats</h2>';
-            Object.entries(profiles).forEach(([profileName, data]) => {
-                html += `<h3>Profile: ${profileName}</h3>`;
-                html += '<table border="1" cellpadding="4" style="border-collapse:collapse; margin-bottom:20px;">';
-                html += '<tr><th>Word</th><th>Meaning</th><th>Correct</th><th>Incorrect</th></tr>';
-                for (const q of vocabulary) {
-                    const stat = (data.questionStats && data.questionStats[q.id]) || { correct: 0, incorrect: 0 };
-                    html += `<tr><td>${q.word}</td><td>${q.meaning}</td><td>${stat.correct}</td><td>${stat.incorrect}</td></tr>`;
-                }
-                html += '</table>';
-            });
-            html += '<button onclick="document.getElementById(\'adminStats\').style.display=\'none\'">Close</button>';
+            
+            const currentProfile = profileManager.currentProfile;
+            if (!currentProfile) {
+                alert('Please select a profile first!');
+                return;
+            }
+
+            const profileData = profileManager.profiles[currentProfile];
+            let html = `<h2 style="color: #ffd700; text-shadow: 2px 2px #3f3f3f;">Stats for ${currentProfile}</h2>`;
+            html += '<table border="1" cellpadding="4" style="border-collapse:collapse; margin-bottom:20px; width:100%; color:#fff;">';
+            html += '<tr style="background-color: rgba(255, 193, 7, 0.3);"><th>Word</th><th>Meaning</th><th>Correct</th><th>Incorrect</th><th>Success Rate</th></tr>';
+            
+            for (const q of vocabulary) {
+                const stat = (profileData.questionStats && profileData.questionStats[q.id]) || { correct: 0, incorrect: 0 };
+                const total = stat.correct + stat.incorrect;
+                const successRate = total > 0 ? ((stat.correct / total) * 100).toFixed(1) + '%' : 'N/A';
+                
+                html += `<tr>
+                    <td>${q.word}</td>
+                    <td>${q.meaning}</td>
+                    <td>${stat.correct}</td>
+                    <td>${stat.incorrect}</td>
+                    <td>${successRate}</td>
+                </tr>`;
+            }
+            html += '</table>';
+            html += '<button onclick="document.getElementById(\'adminStats\').style.display=\'none\'" style="background-color: rgba(255, 193, 7, 0.7); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-family: \'VT323\', monospace; font-size: 1.1em;">Close</button>';
             statsDiv.innerHTML = html;
             statsDiv.style.display = 'block';
+
+            // Add ESC key handler
+            const escHandler = (e) => {
+                if (e.key === 'Escape') {
+                    statsDiv.style.display = 'none';
+                    document.removeEventListener('keydown', escHandler);
+                }
+            };
+            document.addEventListener('keydown', escHandler);
         }
     </script>
 </body>
