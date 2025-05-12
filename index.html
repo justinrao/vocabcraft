@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VocabCraft - Learn Vocabulary with Minecraft</title>
+    <!-- Add Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
@@ -836,25 +840,324 @@
         class ProfileManager {
             constructor() {
                 console.log('Initializing ProfileManager');
-                this.profiles = this.loadProfiles();
+                this.profiles = {};
                 this.currentProfile = null;
-                this.renderProfileList();
+                this.db = null;
+                this.auth = null;
+                this.isOnline = navigator.onLine;
+                this.syncQueue = [];
+                this.initFirebase();
+                this.setupNetworkListeners();
             }
 
-            loadProfiles() {
+            logOperation(operation, details) {
+                const timestamp = new Date().toISOString();
+                const logEntry = {
+                    timestamp,
+                    operation,
+                    details,
+                    online: this.isOnline,
+                    currentProfile: this.currentProfile,
+                    queueLength: this.syncQueue.length
+                };
+                console.log('Firebase Operation:', logEntry);
+                
+                // Store logs in localStorage for persistence
+                const logs = JSON.parse(localStorage.getItem('firebase_logs') || '[]');
+                logs.push(logEntry);
+                // Keep only last 100 logs
+                if (logs.length > 100) logs.shift();
+                localStorage.setItem('firebase_logs', JSON.stringify(logs));
+            }
+
+            loadFromLocalStorage() {
                 const profiles = localStorage.getItem('vocabcraft_profiles');
-                return profiles ? JSON.parse(profiles) : {};
+                const parsedProfiles = profiles ? JSON.parse(profiles) : {};
+                this.logOperation('load_local_storage', {
+                    foundProfiles: Object.keys(parsedProfiles).length,
+                    profileIds: Object.keys(parsedProfiles),
+                    profileNames: Object.values(parsedProfiles).map(p => p.name)
+                });
+                return parsedProfiles;
             }
 
-            saveProfiles() {
+            saveToLocalStorage() {
+                this.logOperation('save_local_storage', {
+                    savingProfiles: Object.keys(this.profiles).length,
+                    profileIds: Object.keys(this.profiles),
+                    profileNames: Object.values(this.profiles).map(p => p.name)
+                });
                 localStorage.setItem('vocabcraft_profiles', JSON.stringify(this.profiles));
             }
 
-            createProfile(name) {
-                if (this.profiles[name]) {
-                    return false; // Profile already exists
+            async initFirebase() {
+                this.logOperation('init', 'Starting Firebase initialization');
+                try {
+                    const firebaseConfig = {
+                        apiKey: "AIzaSyCSZUNwL45dj49Nq-NPD5aAJDi7ooxUxnk",
+                        authDomain: "vocabcraft-81563.firebaseapp.com",
+                        projectId: "vocabcraft-81563",
+                        storageBucket: "vocabcraft-81563.firebasestorage.app",
+                        messagingSenderId: "238507816169",
+                        appId: "1:238507816169:web:ecdcdce8634db70c53ac78"
+                    };
+
+                    firebase.initializeApp(firebaseConfig);
+                    this.db = firebase.firestore();
+                    this.auth = firebase.auth();
+                    
+                    this.logOperation('init', 'Firebase initialized successfully');
+                    
+                    // Enable Firestore logging and offline persistence
+                    try {
+                        await this.db.enablePersistence();
+                        this.logOperation('persistence', 'Enabled offline persistence');
+                    } catch (err) {
+                        this.logOperation('persistence_error', err);
+                        console.warn('Offline persistence not available:', err);
+                    }
+
+                    // Set up connection state listener
+                    this.db.enableNetwork().catch(err => {
+                        this.logOperation('network_error', err);
+                        console.warn('Network connection failed:', err);
+                    });
+
+                    this.db.waitForPendingWrites().then(() => {
+                        this.logOperation('pending_writes', 'All pending writes completed');
+                    }).catch(err => {
+                        this.logOperation('pending_writes_error', err);
+                    });
+
+                    // Load profiles and render
+                    await this.loadProfiles();
+                    this.renderProfileList();
+                    this.updateConnectionStatus();
+                } catch (error) {
+                    this.logOperation('init_error', error);
+                    console.error('Firebase initialization error:', error);
+                    this.showOfflineMessage();
                 }
-                this.profiles[name] = {
+            }
+
+            showOfflineMessage() {
+                const messageDiv = document.createElement('div');
+                messageDiv.id = 'offlineMessage';
+                messageDiv.style.cssText = `
+                    position: fixed;
+                    top: 10px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background-color: rgba(255, 193, 7, 0.9);
+                    color: black;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    z-index: 2000;
+                    font-family: 'VT323', monospace;
+                    font-size: 1.2em;
+                    text-align: center;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                `;
+                messageDiv.textContent = 'Working in offline mode. Changes will sync when connection is restored.';
+                document.body.appendChild(messageDiv);
+
+                // Remove message after 5 seconds
+                setTimeout(() => {
+                    messageDiv.style.opacity = '0';
+                    messageDiv.style.transition = 'opacity 0.5s ease-out';
+                    setTimeout(() => messageDiv.remove(), 500);
+                }, 5000);
+            }
+
+            updateConnectionStatus() {
+                if (!this.isOnline) {
+                    this.showOfflineMessage();
+                }
+            }
+
+            setupNetworkListeners() {
+                window.addEventListener('online', () => {
+                    console.log('Network connection restored');
+                    this.isOnline = true;
+                    this.logOperation('network_status', 'Online');
+                    this.syncWithFirebase();
+                    this.updateConnectionStatus();
+                });
+
+                window.addEventListener('offline', () => {
+                    console.log('Network connection lost');
+                    this.isOnline = false;
+                    this.logOperation('network_status', 'Offline');
+                    this.showOfflineMessage();
+                });
+            }
+
+            async loadProfiles() {
+                this.logOperation('load_start', 'Starting profile load');
+                const localProfiles = this.loadFromLocalStorage();
+                
+                if (this.isOnline) {
+                    try {
+                        const snapshot = await this.db.collection('profiles').get();
+                        const firestoreProfiles = {};
+                        snapshot.forEach(doc => {
+                            firestoreProfiles[doc.id] = doc.data();
+                        });
+
+                        this.logOperation('load_firestore', {
+                            profileCount: Object.keys(firestoreProfiles).length,
+                            profileIds: Object.keys(firestoreProfiles)
+                        });
+
+                        this.profiles = {};
+                        
+                        // Process Firestore profiles
+                        Object.entries(firestoreProfiles).forEach(([id, data]) => {
+                            this.profiles[id] = data;
+                        });
+
+                        // Process local profiles
+                        Object.entries(localProfiles).forEach(([id, localData]) => {
+                            if (this.profiles[id]) {
+                                const firestoreData = this.profiles[id];
+                                if (localData.lastSaved > firestoreData.lastSaved) {
+                                    this.logOperation('conflict_resolution', {
+                                        profileId: id,
+                                        localVersion: localData.version,
+                                        firestoreVersion: firestoreData.version,
+                                        resolution: 'local_wins'
+                                    });
+                                    this.syncQueue.push({ type: 'update', id, data: localData });
+                                }
+                            } else {
+                                this.logOperation('new_local_profile', {
+                                    profileId: id,
+                                    profileName: localData.name
+                                });
+                                this.syncQueue.push({ type: 'create', id, data: localData });
+                            }
+                            this.profiles[id] = localData;
+                        });
+
+                        await this.syncWithFirebase();
+                    } catch (error) {
+                        this.logOperation('load_error', error);
+                        console.error('Error loading from Firestore:', error);
+                        this.profiles = localProfiles;
+                        this.showOfflineMessage();
+                    }
+                } else {
+                    this.logOperation('load_offline', {
+                        localProfileCount: Object.keys(localProfiles).length
+                    });
+                    this.profiles = localProfiles;
+                    this.showOfflineMessage();
+                }
+            }
+
+            async syncWithFirebase() {
+                if (!this.isOnline) {
+                    this.logOperation('sync_skipped', 'Offline - sync skipped');
+                    return;
+                }
+
+                this.logOperation('sync_start', {
+                    queueLength: this.syncQueue.length,
+                    operations: this.syncQueue.map(op => op.type)
+                });
+
+                try {
+                    const batch = this.db.batch();
+                    let hasChanges = false;
+                    let processedOps = 0;
+                    let skippedOps = 0;
+
+                    while (this.syncQueue.length > 0) {
+                        const operation = this.syncQueue.shift();
+                        const profileRef = this.db.collection('profiles').doc(operation.id);
+
+                        switch (operation.type) {
+                            case 'create':
+                            case 'update':
+                                const doc = await profileRef.get();
+                                if (doc.exists) {
+                                    const existingData = doc.data();
+                                    if (existingData.version > operation.data.version) {
+                                        this.logOperation('conflict_detected', {
+                                            profileId: operation.id,
+                                            operation: operation.type,
+                                            localVersion: operation.data.version,
+                                            serverVersion: existingData.version,
+                                            resolution: 'server_wins'
+                                        });
+                                        this.profiles[operation.id] = existingData;
+                                        this.saveToLocalStorage();
+                                        skippedOps++;
+                                        continue;
+                                    }
+                                }
+                                batch.set(profileRef, operation.data);
+                                hasChanges = true;
+                                processedOps++;
+                                break;
+                            case 'delete':
+                                batch.delete(profileRef);
+                                hasChanges = true;
+                                processedOps++;
+                                break;
+                        }
+                    }
+
+                    if (hasChanges) {
+                        await batch.commit();
+                        this.logOperation('sync_success', {
+                            processedOps,
+                            skippedOps,
+                            remainingQueue: this.syncQueue.length
+                        });
+                    } else {
+                        this.logOperation('sync_no_changes', {
+                            processedOps,
+                            skippedOps
+                        });
+                    }
+                } catch (error) {
+                    this.logOperation('sync_error', {
+                        error: error.message,
+                        code: error.code,
+                        remainingQueue: this.syncQueue.length
+                    });
+                    console.error('Error syncing with Firebase:', error);
+                    this.syncQueue = [...this.syncQueue, ...this.syncQueue];
+                }
+            }
+
+            // Add a method to view logs
+            showLogs() {
+                const logs = JSON.parse(localStorage.getItem('firebase_logs') || '[]');
+                console.table(logs);
+                return logs;
+            }
+
+            // Generate a UUID v4
+            generateUUID() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0;
+                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+
+            async createProfile(name) {
+                // Check if name already exists
+                const existingProfile = Object.values(this.profiles).find(p => p.name === name);
+                if (existingProfile) {
+                    return false; // Profile name already exists
+                }
+
+                const profileId = this.generateUUID();
+                const newProfile = {
+                    name: name,
                     score: 0,
                     currentQuestion: 0,
                     blockCounts: {
@@ -869,17 +1172,36 @@
                         y: 180
                     },
                     lastSaved: new Date().toISOString(),
-                    questionStats: {} // { [questionId]: { correct: 0, incorrect: 0 } }
+                    questionStats: {},
+                    version: 1 // Add version for conflict detection
                 };
-                this.saveProfiles();
+
+                // Save to localStorage
+                this.profiles[profileId] = newProfile;
+                this.saveToLocalStorage();
+
+                // Queue for Firebase sync
+                if (this.isOnline) {
+                    this.syncQueue.push({ type: 'create', id: profileId, data: newProfile });
+                    await this.syncWithFirebase();
+                }
+
                 this.renderProfileList();
                 return true;
             }
 
-            deleteProfile(name) {
+            async deleteProfile(name) {
                 if (confirm(`Are you sure you want to delete profile "${name}"?`)) {
+                    // Remove from localStorage
                     delete this.profiles[name];
-                    this.saveProfiles();
+                    this.saveToLocalStorage();
+
+                    // Queue for Firebase sync
+                    if (this.isOnline) {
+                        this.syncQueue.push({ type: 'delete', name });
+                        await this.syncWithFirebase();
+                    }
+
                     this.renderProfileList();
                 }
             }
@@ -889,15 +1211,24 @@
                 return this.profiles[name];
             }
 
-            saveProfile(gameState) {
+            async saveProfile(gameState) {
                 if (!this.currentProfile) return;
 
-                this.profiles[this.currentProfile] = {
+                const updatedProfile = {
                     ...gameState,
-                    lastSaved: new Date().toISOString()
+                    lastSaved: new Date().toISOString(),
+                    version: (this.profiles[this.currentProfile].version || 0) + 1
                 };
 
-                this.saveProfiles();
+                // Save to localStorage
+                this.profiles[this.currentProfile] = updatedProfile;
+                this.saveToLocalStorage();
+
+                // Queue for Firebase sync
+                if (this.isOnline) {
+                    this.syncQueue.push({ type: 'update', id: this.currentProfile, data: updatedProfile });
+                    await this.syncWithFirebase();
+                }
             }
 
             renderProfileList() {
@@ -909,7 +1240,11 @@
 
                 profileList.innerHTML = '';
 
-                Object.entries(this.profiles).forEach(([name, data]) => {
+                // Sort profiles by name
+                const sortedProfiles = Object.entries(this.profiles)
+                    .sort(([, a], [, b]) => a.name.localeCompare(b.name));
+
+                sortedProfiles.forEach(([id, data]) => {
                     const profileItem = document.createElement('div');
                     profileItem.className = 'profile-item';
 
@@ -918,7 +1253,7 @@
 
                     const profileName = document.createElement('div');
                     profileName.className = 'profile-name';
-                    profileName.textContent = name;
+                    profileName.textContent = data.name;
 
                     const profileStats = document.createElement('div');
                     profileStats.className = 'profile-stats';
@@ -929,7 +1264,7 @@
                     deleteButton.textContent = 'Delete';
                     deleteButton.onclick = (e) => {
                         e.stopPropagation();
-                        this.deleteProfile(name);
+                        this.deleteProfile(id);
                     };
 
                     profileInfo.appendChild(profileName);
@@ -937,7 +1272,7 @@
                     profileItem.appendChild(profileInfo);
                     profileItem.appendChild(deleteButton);
 
-                    profileItem.onclick = () => this.startGame(name);
+                    profileItem.onclick = () => this.startGame(id);
                     profileList.appendChild(profileItem);
                 });
             }
@@ -2167,12 +2502,12 @@
         }
 
         // Profile functions
-        function createNewProfile() {
+        async function createNewProfile() {
             const nameInput = document.getElementById('newProfileName');
             const name = nameInput.value.trim();
 
             if (name) {
-                if (profileManager.createProfile(name)) {
+                if (await profileManager.createProfile(name)) {
                     nameInput.value = '';
                     startGame(name);
                 } else {
@@ -2183,77 +2518,15 @@
             }
         }
 
-        function initProfileKeyboardNav() {
-            const profileList = document.getElementById('profileList');
-            const nameInput = document.getElementById('newProfileName');
-            let selectedIndex = -1;
-
-            document.addEventListener('keydown', (e) => {
-                const profiles = profileList.getElementsByClassName('profile-item');
-
-                switch (e.key) {
-                    case 'ArrowUp':
-                        e.preventDefault();
-                        selectedIndex = Math.max(0, selectedIndex - 1);
-                        updateSelection();
-                        break;
-                    case 'ArrowDown':
-                        e.preventDefault();
-                        selectedIndex = Math.min(profiles.length - 1, selectedIndex + 1);
-                        updateSelection();
-                        break;
-                    case 'Enter':
-                        e.preventDefault();
-                        if (selectedIndex >= 0 && selectedIndex < profiles.length) {
-                            profiles[selectedIndex].click();
-                        } else if (document.activeElement === nameInput && nameInput.value.trim()) {
-                            createNewProfile();
-                        }
-                        break;
-                    case 'Tab':
-                        // Let the browser handle default tab behavior
-                        break;
-                    default:
-                        // If typing in the input, reset selection
-                        if (document.activeElement === nameInput) {
-                            selectedIndex = -1;
-                            updateSelection();
-                        }
-                }
-            });
-
-            function updateSelection() {
-                const profiles = profileList.getElementsByClassName('profile-item');
-                Array.from(profiles).forEach((profile, index) => {
-                    if (index === selectedIndex) {
-                        profile.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-                        profile.style.transform = 'scale(1.02)';
-                    } else {
-                        profile.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                        profile.style.transform = 'scale(1)';
-                    }
-                });
-            }
-
-            // Add focus styles to input
-            nameInput.addEventListener('focus', () => {
-                nameInput.style.outline = '2px solid #ffd700';
-            });
-
-            nameInput.addEventListener('blur', () => {
-                nameInput.style.outline = 'none';
-            });
-        }
-
-        function startGame(profileName) {
+        async function startGame(profileName) {
             if (profileManager) {
-                profileManager.startGame(profileName);
+                await profileManager.startGame(profileName);
             }
         }
 
-        function saveAndExit() {
+        async function saveAndExit() {
             if (profileManager) {
-                profileManager.exitToProfile();
+                await profileManager.exitToProfile();
             }
         }
 
@@ -2261,7 +2534,7 @@
         const profileManager = new ProfileManager();
         initProfileKeyboardNav();
 
-        function showAdminStats() {
+        async function showAdminStats() {
             const statsDiv = document.getElementById('adminStats');
             if (!statsDiv) return;
             
@@ -2271,6 +2544,8 @@
                 return;
             }
 
+            // Refresh profile data from Firestore
+            await profileManager.loadProfiles();
             const profileData = profileManager.profiles[currentProfile];
             const contentDiv = statsDiv.querySelector('div:nth-child(2)');
             const titleElement = document.getElementById('adminStatsTitle');
