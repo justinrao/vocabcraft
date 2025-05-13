@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "description": "Learn vocabulary with Minecraft",
   "scripts": {
-    "dev": "serve",
-    "build": "echo 'No build step required'",
-    "start": "serve"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "serve public"
   },
   "devDependencies": {
-    "serve": "^14.2.4"
+    "serve": "^14.2.4",
+    "vite": "^6.3.5"
   },
   "repository": {
     "type": "git",
