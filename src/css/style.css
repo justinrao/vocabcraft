@@ -477,14 +477,14 @@ h1 {
     opacity: 1;
 }
 
-.new-profile-form {
+#newProfileForm {
     margin-top: 20px;
     padding: 20px;
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 5px;
 }
 
-.new-profile-form input {
+#newProfileForm input {
     padding: 10px;
     margin: 10px 0;
     width: 200px;
@@ -494,7 +494,7 @@ h1 {
     font-size: 1.1em;
 }
 
-.new-profile-form button {
+#newProfileForm  button {
     background-color: #4CAF50;
     color: white;
     border: none;
@@ -506,7 +506,7 @@ h1 {
     margin-top: 10px;
 }
 
-.new-profile-form button:hover {
+#newProfileForm  button:hover {
     background-color: #45a049;
 }
 
