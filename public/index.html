@@ -625,7 +625,7 @@
 
                 // Initialize new game
                 console.log('Creating new game instance');
-                window.game = new VocabCraft(this, profileId);
+                window.game = new VocabCraft(this, gameState.name);
 
                 // Update profile name display with the actual profile name
                 profileNameDisplay.textContent = `Profile: ${gameState.name}`;
