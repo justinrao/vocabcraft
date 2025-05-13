@@ -1,0 +1,50 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Profiles collection rules
+    match /profiles/{profileId} {
+      // Allow read access to all profiles
+      allow read: if true;
+      
+      // Allow create/update with validation matching the actual profile structure
+      allow create, update: if 
+        // Check if user is authenticated (even anonymously)
+        request.auth != null &&
+        
+        // Required string fields
+        request.resource.data.name is string &&
+        request.resource.data.name.size() >= 1 &&
+        request.resource.data.name.size() <= 20 &&
+        request.resource.data.lastSaved is string &&
+        
+        // Required number fields
+        request.resource.data.score is number &&
+        request.resource.data.currentQuestion is number &&
+        request.resource.data.version is number &&
+        
+        // Required object fields
+        request.resource.data.blockCounts is map &&
+        request.resource.data.blockCounts.dirt is number &&
+        request.resource.data.blockCounts.stone is number &&
+        request.resource.data.blockCounts.wood is number &&
+        request.resource.data.blockCounts.glass is number &&
+        
+        request.resource.data.characterPosition is map &&
+        request.resource.data.characterPosition.x is number &&
+        request.resource.data.characterPosition.y is number &&
+        
+        // Optional fields
+        (request.resource.data.blocks is list || !('blocks' in request.resource.data)) &&
+        (request.resource.data.questionStats is map || !('questionStats' in request.resource.data));
+      
+      // Allow delete if the profile exists and user is authenticated
+      allow delete: if request.auth != null && exists(/databases/$(database)/documents/profiles/$(profileId));
+    }
+  }
+} 

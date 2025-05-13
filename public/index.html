@@ -898,16 +898,69 @@
                         apiKey: "AIzaSyCSZUNwL45dj49Nq-NPD5aAJDi7ooxUxnk",
                         authDomain: "vocabcraft-81563.firebaseapp.com",
                         projectId: "vocabcraft-81563",
-                        storageBucket: "vocabcraft-81563.firebasestorage.app",
+                        storageBucket: "vocabcraft-81563.appspot.com", // Fixed storage bucket URL
                         messagingSenderId: "238507816169",
                         appId: "1:238507816169:web:ecdcdce8634db70c53ac78"
                     };
 
-                    firebase.initializeApp(firebaseConfig);
+                    // Initialize Firebase if not already initialized
+                    if (!firebase.apps.length) {
+                        try {
+                            firebase.initializeApp(firebaseConfig);
+                            this.logOperation('init', 'Firebase app initialized successfully');
+                        } catch (initError) {
+                            this.logOperation('init_error', initError);
+                            console.error('Firebase initialization error:', initError);
+                            throw initError;
+                        }
+                    }
+                    
                     this.db = firebase.firestore();
                     this.auth = firebase.auth();
                     
-                    this.logOperation('init', 'Firebase initialized successfully');
+                    // Sign in anonymously with proper error handling
+                    try {
+                        // First check if user is already signed in
+                        const currentUser = this.auth.currentUser;
+                        if (currentUser) {
+                            this.logOperation('auth', 'User already signed in', { uid: currentUser.uid });
+                        } else {
+                            const userCredential = await this.auth.signInAnonymously();
+                            this.logOperation('auth', 'Anonymous authentication successful', { uid: userCredential.user.uid });
+                        }
+                    } catch (authError) {
+                        this.logOperation('auth_error', authError);
+                        console.error('Anonymous authentication failed:', authError);
+                        
+                        // Show a user-friendly error message
+                        const errorMessage = document.createElement('div');
+                        errorMessage.style.cssText = `
+                            position: fixed;
+                            top: 10px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            background-color: rgba(244, 67, 54, 0.9);
+                            color: white;
+                            padding: 10px 20px;
+                            border-radius: 5px;
+                            z-index: 2000;
+                            font-family: 'VT323', monospace;
+                            font-size: 1.2em;
+                            text-align: center;
+                            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                        `;
+                        errorMessage.textContent = 'Authentication error. Please check your Firebase configuration.';
+                        document.body.appendChild(errorMessage);
+                        
+                        // Remove message after 5 seconds
+                        setTimeout(() => {
+                            errorMessage.style.opacity = '0';
+                            errorMessage.style.transition = 'opacity 0.5s ease-out';
+                            setTimeout(() => errorMessage.remove(), 500);
+                        }, 5000);
+                        
+                        // Continue without authentication - the app will work in offline mode
+                    }
                     
                     // Enable Firestore logging and offline persistence
                     try {
@@ -1241,9 +1294,14 @@
 
                 profileList.innerHTML = '';
 
-                // Sort profiles by name
+                // Sort profiles by name, handling undefined names
                 const sortedProfiles = Object.entries(this.profiles)
-                    .sort(([, a], [, b]) => a.name.localeCompare(b.name));
+                    .filter(([, data]) => data && typeof data === 'object') // Filter out invalid profiles
+                    .sort(([, a], [, b]) => {
+                        const nameA = a.name || '';
+                        const nameB = b.name || '';
+                        return nameA.localeCompare(nameB);
+                    });
 
                 sortedProfiles.forEach(([id, data]) => {
                     const profileItem = document.createElement('div');
@@ -2533,6 +2591,54 @@
 
         // Initialize profile manager and keyboard navigation
         const profileManager = new ProfileManager();
+        
+        function initProfileKeyboardNav() {
+            document.addEventListener('keydown', (e) => {
+                // Only handle keyboard navigation when profile container is visible
+                const profileContainer = document.getElementById('profileContainer');
+                if (!profileContainer || profileContainer.style.display === 'none') {
+                    return;
+                }
+
+                const profileList = document.getElementById('profileList');
+                const profiles = profileList.querySelectorAll('.profile-item');
+                const currentIndex = Array.from(profiles).findIndex(p => p.classList.contains('selected'));
+
+                switch (e.key) {
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        if (currentIndex > 0) {
+                            profiles[currentIndex].classList.remove('selected');
+                            profiles[currentIndex - 1].classList.add('selected');
+                            profiles[currentIndex - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        }
+                        break;
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        if (currentIndex < profiles.length - 1) {
+                            profiles[currentIndex].classList.remove('selected');
+                            profiles[currentIndex + 1].classList.add('selected');
+                            profiles[currentIndex + 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        }
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        if (currentIndex !== -1) {
+                            const profileId = profiles[currentIndex].querySelector('.profile-info').textContent.split('\n')[0];
+                            startGame(profileId);
+                        }
+                        break;
+                }
+            });
+
+            // Add initial selection to first profile if exists
+            const profileList = document.getElementById('profileList');
+            const firstProfile = profileList.querySelector('.profile-item');
+            if (firstProfile) {
+                firstProfile.classList.add('selected');
+            }
+        }
+
         initProfileKeyboardNav();
 
         async function showAdminStats() {
