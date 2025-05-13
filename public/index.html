@@ -631,7 +631,7 @@
                 profileNameDisplay.textContent = `Profile: ${gameState.name}`;
 
                 // Remove loading message when vocabulary is loaded
-                window.game.loadVocabulary().then(() => {
+                window.game.initializeGame().then(() => {
                     document.body.removeChild(loadingMessage);
                     // Load game state
                     console.log('Loading game state');
@@ -721,8 +721,20 @@
                 };
                 this.selectedBlockType = null;
 
-                // Load game state first to get the profile name
-                this.loadGameState().then(() => {
+                // Initialize the game in the correct sequence
+                this.initializeGame();
+            }
+
+            async initializeGame() {
+                try {
+                    // First load vocabulary
+                    await this.loadVocabulary();
+                    console.log('Vocabulary loaded:', this.vocabulary.length, 'words');
+
+                    // Then load game state
+                    await this.loadGameState();
+                    console.log('Game state loaded');
+
                     // Initialize building area toggle
                     const buildingToggle = document.getElementById('buildingToggle');
                     const buildingArea = document.getElementById('buildingArea');
@@ -766,13 +778,13 @@
                         });
                     }
 
-                    // Load vocabulary before initializing the game
-                    this.loadVocabulary().then(() => {
-                        // Initialize game components
-                        this.initGame();
-                        this.setupAutoSave();
-                    });
-                });
+                    // Initialize game components
+                    this.initGame();
+                    this.setupAutoSave();
+                } catch (error) {
+                    console.error('Error initializing game:', error);
+                    showError('Failed to initialize game: ' + error.message);
+                }
             }
 
             async loadGameState() {
@@ -1032,8 +1044,12 @@
             }
 
             showQuestion() {
-                console.log('Showing question:', this.currentQuestion);
+                console.log('Showing question:', this.currentQuestion, 'Vocabulary length:', this.vocabulary.length);
                 try {
+                    if (!this.vocabulary || this.vocabulary.length === 0) {
+                        throw new Error('Vocabulary not loaded yet');
+                    }
+
                     const question = this.vocabulary[this.currentQuestion];
                     if (!question) {
                         throw new Error(`No question found for index: ${this.currentQuestion}`);
@@ -1070,6 +1086,7 @@
                     console.log('Question displayed successfully');
                 } catch (error) {
                     console.error('Error showing question:', error);
+                    showError('Error showing question: ' + error.message);
                 }
             }
 
