@@ -1186,15 +1186,18 @@
                 return true;
             }
 
-            async deleteProfile(name) {
-                if (confirm(`Are you sure you want to delete profile "${name}"?`)) {
+            async deleteProfile(profileId) {
+                const profile = this.profiles[profileId];
+                if (!profile) return;
+
+                if (confirm(`Are you sure you want to delete profile "${profile.name}"?`)) {
                     // Remove from localStorage
-                    delete this.profiles[name];
+                    delete this.profiles[profileId];
                     this.saveToLocalStorage();
 
                     // Queue for Firebase sync
                     if (this.isOnline) {
-                        this.syncQueue.push({ type: 'delete', name });
+                        this.syncQueue.push({ type: 'delete', id: profileId });
                         await this.syncWithFirebase();
                     }
 
@@ -1202,9 +1205,8 @@
                 }
             }
 
-            loadProfile(name) {
-                this.currentProfile = name;
-                return this.profiles[name];
+            loadProfile(profileId) {
+                return this.profiles[profileId];
             }
 
             async saveProfile(gameState) {
@@ -1248,6 +1250,7 @@
                 sortedProfiles.forEach(([id, data]) => {
                     const profileItem = document.createElement('div');
                     profileItem.className = 'profile-item';
+                    profileItem.dataset.profileId = id; // Store the ID in a data attribute
 
                     const profileInfo = document.createElement('div');
                     profileInfo.className = 'profile-info';
@@ -1286,11 +1289,11 @@
                 }, 2000);
             }
 
-            startGame(profileName) {
-                console.log('Starting game for profile:', profileName);
-                const gameState = this.loadProfile(profileName);
+            startGame(profileId) {
+                console.log('Starting game for profile:', profileId);
+                const gameState = this.profiles[profileId];
                 if (!gameState) {
-                    console.error('No game state found for profile:', profileName);
+                    console.error('No game state found for profile:', profileId);
                     return;
                 }
 
@@ -1336,7 +1339,10 @@
 
                 // Initialize new game
                 console.log('Creating new game instance');
-                window.game = new VocabCraft(this, profileName);
+                window.game = new VocabCraft(this, profileId);
+
+                // Update profile name display with the actual profile name
+                profileNameDisplay.textContent = `Profile: ${gameState.name}`;
 
                 // Remove loading message when vocabulary is loaded
                 window.game.loadVocabulary().then(() => {
