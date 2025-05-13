@@ -1,0 +1,729 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+body {
+    font-family: 'VT323', monospace;
+    background-color: #87CEEB;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-image: url('https://raw.githubusercontent.com/misode/mcmeta/master/assets/minecraft/textures/block/grass_block_side.png');
+    background-size: 64px 64px;
+    image-rendering: pixelated;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+h1 {
+    color: #fff;
+    text-shadow: 2px 2px #3f3f3f;
+    font-size: 3em;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.game-container {
+    display: flex;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.quiz-section {
+    background-color: #8B4513;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    width: 400px;
+    border: 4px solid #5c2e0a;
+    image-rendering: pixelated;
+    transition: opacity 0.3s ease;
+}
+
+.quiz-section.visible {
+    display: block !important;
+    opacity: 1;
+}
+
+.building-section {
+    background-color: #5c2e0a;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    width: 600px;
+    height: 400px;
+    position: relative;
+    border: 4px solid #3d1f07;
+    image-rendering: pixelated;
+    background-image:
+        linear-gradient(rgba(0, 0, 0, 0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.2) 1px, transparent 1px);
+    background-size: 40px 40px;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    transition: opacity 0.3s ease;
+}
+
+.building-section.visible {
+    display: block !important;
+    opacity: 1;
+}
+
+.building-toggle {
+    display: none;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: 2px solid #5c2e0a;
+    padding: 10px 20px;
+    border-radius: 10px;
+    margin: 10px auto;
+    font-family: 'VT323', monospace;
+    font-size: 1.2em;
+    cursor: pointer;
+    width: 200px;
+    text-align: center;
+    z-index: 1000;
+}
+
+.building-toggle:active {
+    background-color: rgba(92, 46, 10, 0.7);
+}
+
+.question {
+    color: white;
+    font-size: 1.4em;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px #3f3f3f;
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.option {
+    background-color: #A0522D;
+    color: white;
+    padding: 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1.2em;
+    text-shadow: 1px 1px #3f3f3f;
+    border: 2px solid #5c2e0a;
+}
+
+.option:hover {
+    background-color: #8B4513;
+    transform: scale(1.02);
+}
+
+.block {
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    cursor: move;
+    image-rendering: pixelated;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.block.mining {
+    animation: mining 0.5s ease-in-out;
+}
+
+@keyframes mining {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(0.8);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.score {
+    color: white;
+    font-size: 1.4em;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px #3f3f3f;
+}
+
+.block-palette,
+.block-palette-container,
+.block-palette-item,
+.block-count {
+    display: none !important;
+}
+
+.building-section.drag-over {
+    background-color: #4a2510;
+}
+
+.character {
+    display: none;
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    transition: all 0.1s ease;
+    z-index: 1000;
+}
+
+.character-head {
+    width: 20px;
+    height: 20px;
+    background-color: #FFD700;
+    position: absolute;
+    top: 0;
+    left: 10px;
+    border: 2px solid #000;
+}
+
+.character-body {
+    width: 20px;
+    height: 20px;
+    background-color: #3B5998;
+    position: absolute;
+    top: 20px;
+    left: 10px;
+    border: 2px solid #000;
+}
+
+.character-arm {
+    width: 8px;
+    height: 20px;
+    background-color: #3B5998;
+    position: absolute;
+    top: 20px;
+    border: 2px solid #000;
+}
+
+.character-arm.left {
+    left: 2px;
+}
+
+.character-arm.right {
+    right: 2px;
+}
+
+.character-leg {
+    width: 8px;
+    height: 20px;
+    background-color: #2B3F6B;
+    position: absolute;
+    bottom: 0;
+    border: 2px solid #000;
+}
+
+.character-leg.left {
+    left: 10px;
+}
+
+.character-leg.right {
+    right: 10px;
+}
+
+.character.facing-left .character-arm.left {
+    transform: rotate(-30deg);
+    transform-origin: top center;
+}
+
+.character.facing-left .character-arm.right {
+    transform: rotate(30deg);
+    transform-origin: top center;
+}
+
+.character.facing-right .character-arm.left {
+    transform: rotate(30deg);
+    transform-origin: top center;
+}
+
+.character.facing-right .character-arm.right {
+    transform: rotate(-30deg);
+    transform-origin: top center;
+}
+
+.character.facing-back .character-arm.left {
+    transform: rotate(-15deg);
+    transform-origin: top center;
+}
+
+.character.facing-back .character-arm.right {
+    transform: rotate(15deg);
+    transform-origin: top center;
+}
+
+.character-bag {
+    width: 16px;
+    height: 16px;
+    background-color: #8B4513;
+    position: absolute;
+    bottom: 0;
+    left: 12px;
+    border: 2px solid #000;
+    z-index: 999;
+}
+
+.character-bag::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: #A0522D;
+    top: 4px;
+    left: 4px;
+    border: 1px solid #000;
+}
+
+.inventory {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    color: white;
+    font-size: 1.2em;
+    text-shadow: 1px 1px #000;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.inventory-selector {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 10px;
+    display: none;
+    gap: 10px;
+    z-index: 1000;
+    border: 2px solid #5c2e0a;
+    min-height: 80px;
+}
+
+.inventory-selector.visible {
+    display: flex;
+}
+
+.inventory-slot {
+    width: 50px;
+    height: 50px;
+    border: 2px solid #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    background-size: cover;
+    image-rendering: pixelated;
+    margin: 15px 5px;
+    touch-action: manipulation;
+}
+
+.inventory-slot:hover {
+    transform: scale(1.1);
+}
+
+.inventory-slot.selected {
+    border-color: #ffd700;
+    box-shadow: 0 0 10px #ffd700;
+}
+
+.inventory-slot .block-count {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: #ffd700;
+    color: black;
+    padding: 2px 5px;
+    border-radius: 50%;
+    font-size: 1em;
+    font-weight: bold;
+    min-width: 22px;
+    height: 22px;
+    text-align: center;
+    border: 2px solid #000;
+    z-index: 1001;
+    display: block !important;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s ease-out;
+}
+
+.inventory-slot .block-count.pulse {
+    animation: countPulse 0.5s ease-out;
+}
+
+.inventory-slot .block-name {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 1em;
+    white-space: nowrap;
+    z-index: 1001;
+}
+
+.inventory-slot.empty {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.inventory-slot.empty .block-count {
+    background-color: #ff4444;
+}
+
+.profile-name-display {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 1.2em;
+    z-index: 1000;
+}
+
+.profile-container {
+    display: block;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    color: white;
+    text-align: center;
+    max-width: 600px;
+    margin: 20px auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1001;
+}
+
+.profile-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.profile-item {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.profile-item:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.02);
+}
+
+.profile-item .profile-info {
+    text-align: left;
+}
+
+.profile-item .profile-name {
+    font-size: 1.2em;
+    margin-bottom: 5px;
+}
+
+.profile-item .profile-stats {
+    font-size: 0.9em;
+    color: #ccc;
+}
+
+.profile-item .delete-profile {
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.profile-item .delete-profile:hover {
+    opacity: 1;
+}
+
+.new-profile-form {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+.new-profile-form input {
+    padding: 10px;
+    margin: 10px 0;
+    width: 200px;
+    border: none;
+    border-radius: 5px;
+    font-family: 'VT323', monospace;
+    font-size: 1.1em;
+}
+
+.new-profile-form button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'VT323', monospace;
+    font-size: 1.1em;
+    margin-top: 10px;
+}
+
+.new-profile-form button:hover {
+    background-color: #45a049;
+}
+
+.save-indicator {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.9em;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.save-indicator.visible {
+    opacity: 1;
+}
+
+.game-controls {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.game-control-button {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'VT323', monospace;
+    font-size: 1.1em;
+    transition: all 0.2s ease;
+}
+
+.game-control-button:hover {
+    background-color: rgba(0, 0, 0, 0.9);
+    transform: scale(1.05);
+}
+
+.game-control-button.save {
+    background-color: rgba(76, 175, 80, 0.7);
+}
+
+.game-control-button.save:hover {
+    background-color: rgba(76, 175, 80, 0.9);
+}
+
+.game-control-button.exit {
+    background-color: rgba(244, 67, 54, 0.7);
+}
+
+.game-control-button.exit:hover {
+    background-color: rgba(244, 67, 54, 0.9);
+}
+
+.game-control-button.admin {
+    background-color: rgba(255, 193, 7, 0.7);
+}
+
+.game-control-button.admin:hover {
+    background-color: rgba(255, 193, 7, 0.9);
+}
+
+@keyframes blockAdded {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.block-added-animation {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    pointer-events: none;
+    z-index: 1000;
+    animation: blockAdded 0.5s ease-out forwards;
+}
+
+@keyframes countPulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(2);
+        color: #000;
+        background-color: #ffd700;
+        box-shadow: 0 0 15px #ffd700;
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.mobile-controls {
+    display: none;
+    position: fixed;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 300px;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-controls.visible {
+    opacity: 1;
+}
+
+.mobile-controls-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.mobile-control-button {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: 2px solid #5c2e0a;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.mobile-control-button:active {
+    background-color: rgba(92, 46, 10, 0.7);
+}
+
+.mobile-action-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+@media (max-width: 768px) {
+    .game-container {
+        flex-direction: column;
+        width: 100%;
+        padding: 10px;
+    }
+
+    .quiz-section {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .building-section {
+        width: 100%;
+        height: 300px;
+    }
+
+    .building-toggle {
+        display: block;
+    }
+
+    .mobile-controls {
+        display: none;
+    }
+
+    .quiz-section,
+    .building-section {
+        display: none !important;
+    }
+
+    .quiz-section.visible,
+    .building-section.visible {
+        display: block !important;
+    }
+
+    .building-section.visible ~ .mobile-controls {
+        display: block;
+    }
+}
+
+@media (max-width: 480px) {
+    .building-section {
+        height: 250px;
+    }
+
+    .inventory-slot {
+        width: 35px;
+        height: 35px;
+        margin: 8px 2px;
+    }
+
+    .mobile-control-button {
+        padding: 12px;
+    }
+} 
