@@ -1,5 +1,5 @@
 // Get the version from Vercel's environment variable
-const version = import.meta.env.VITE_VERSION || 'development';
+const version = process.env.VERCEL_GIT_COMMIT_SHA || 'development';
 
 // Create and append version element
 const versionElement = document.createElement('div');
