@@ -12,36 +12,43 @@ service cloud.firestore {
       // Allow read access to all profiles
       allow read: if true;
       
-      // Allow create/update with validation matching the actual profile structure
+      // Allow create/update with more flexible validation
       allow create, update: if 
         // Check if user is authenticated (even anonymously)
         request.auth != null &&
         
-        // Required string fields
+        // Basic structure validation
+        request.resource.data is map &&
+        
+        // Required fields with more flexible validation
         request.resource.data.name is string &&
         request.resource.data.name.size() >= 1 &&
         request.resource.data.name.size() <= 20 &&
-        request.resource.data.lastSaved is string &&
         
-        // Required number fields
-        request.resource.data.score is number &&
-        request.resource.data.currentQuestion is number &&
-        request.resource.data.version is number &&
+        // Optional fields with type checking
+        (!('lastSaved' in request.resource.data) || request.resource.data.lastSaved is string) &&
+        (!('score' in request.resource.data) || request.resource.data.score is number) &&
+        (!('currentQuestion' in request.resource.data) || request.resource.data.currentQuestion is number) &&
+        (!('version' in request.resource.data) || request.resource.data.version is number) &&
         
-        // Required object fields
-        request.resource.data.blockCounts is map &&
-        request.resource.data.blockCounts.dirt is number &&
-        request.resource.data.blockCounts.stone is number &&
-        request.resource.data.blockCounts.wood is number &&
-        request.resource.data.blockCounts.glass is number &&
+        // Optional nested objects
+        (!('blockCounts' in request.resource.data) || (
+          request.resource.data.blockCounts is map &&
+          (!('dirt' in request.resource.data.blockCounts) || request.resource.data.blockCounts.dirt is number) &&
+          (!('stone' in request.resource.data.blockCounts) || request.resource.data.blockCounts.stone is number) &&
+          (!('wood' in request.resource.data.blockCounts) || request.resource.data.blockCounts.wood is number) &&
+          (!('glass' in request.resource.data.blockCounts) || request.resource.data.blockCounts.glass is number)
+        )) &&
         
-        request.resource.data.characterPosition is map &&
-        request.resource.data.characterPosition.x is number &&
-        request.resource.data.characterPosition.y is number &&
+        (!('characterPosition' in request.resource.data) || (
+          request.resource.data.characterPosition is map &&
+          (!('x' in request.resource.data.characterPosition) || request.resource.data.characterPosition.x is number) &&
+          (!('y' in request.resource.data.characterPosition) || request.resource.data.characterPosition.y is number)
+        )) &&
         
-        // Optional fields
-        (request.resource.data.blocks is list || !('blocks' in request.resource.data)) &&
-        (request.resource.data.questionStats is map || !('questionStats' in request.resource.data));
+        // Optional arrays and maps
+        (!('blocks' in request.resource.data) || request.resource.data.blocks is list) &&
+        (!('questionStats' in request.resource.data) || request.resource.data.questionStats is map);
       
       // Allow delete if the profile exists and user is authenticated
       allow delete: if request.auth != null && exists(/databases/$(database)/documents/profiles/$(profileId));

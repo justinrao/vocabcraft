@@ -175,34 +175,39 @@
                     };
 
                     if (!firebase.apps.length) {
-                        try {
-                            firebase.initializeApp(firebaseConfig);
-                            this.logOperation('init', 'Firebase app initialized successfully');
-                        } catch (initError) {
-                            this.logOperation('init_error', initError);
-                            console.error('Firebase initialization error:', initError);
-                            showError('Failed to initialize Firebase. Please check your configuration.', { type: 'error' });
-                            throw initError;
-                        }
+                        firebase.initializeApp(firebaseConfig);
+                        this.logOperation('init', 'Firebase app initialized successfully');
                     }
                     
                     this.db = firebase.firestore();
                     this.auth = firebase.auth();
-                    
-                    try {
-                        const currentUser = this.auth.currentUser;
-                        if (currentUser) {
-                            this.logOperation('auth', 'User already signed in', { uid: currentUser.uid });
+
+                    // Set up auth state change listener
+                    this.auth.onAuthStateChanged(async (user) => {
+                        if (user) {
+                            this.logOperation('auth_state', 'User authenticated', { uid: user.uid });
+                            try {
+                                await this.db.enableNetwork();
+                                this.logOperation('network', 'Network enabled after auth');
+                            } catch (err) {
+                                this.logOperation('network_error', err);
+                                console.warn('Failed to enable network:', err);
+                                showError('Network error. The app will work in offline mode.', { type: 'warning' });
+                            }
                         } else {
-                            const userCredential = await this.auth.signInAnonymously();
-                            this.logOperation('auth', 'Anonymous authentication successful', { uid: userCredential.user.uid });
+                            this.logOperation('auth_state', 'No user authenticated');
+                            try {
+                                const userCredential = await this.auth.signInAnonymously();
+                                this.logOperation('auth', 'Anonymous authentication successful', { uid: userCredential.user.uid });
+                            } catch (authError) {
+                                this.logOperation('auth_error', authError);
+                                console.error('Anonymous authentication failed:', authError);
+                                showError('Authentication error. The app will work in offline mode.', { type: 'warning' });
+                            }
                         }
-                    } catch (authError) {
-                        this.logOperation('auth_error', authError);
-                        console.error('Anonymous authentication failed:', authError);
-                        showError('Authentication error. The app will work in offline mode.', { type: 'warning' });
-                    }
-                    
+                    });
+
+                    // Enable offline persistence
                     try {
                         await this.db.enablePersistence();
                         this.logOperation('persistence', 'Enabled offline persistence');
@@ -212,12 +217,6 @@
                         showError('Offline mode is not available. Some features may be limited.', { type: 'warning' });
                     }
 
-                    this.db.enableNetwork().catch(err => {
-                        this.logOperation('network_error', err);
-                        console.warn('Network connection failed:', err);
-                        showError('Network connection failed. Working in offline mode.', { type: 'warning' });
-                    });
-
                     await this.loadProfiles();
                     this.renderProfileList();
                     this.updateConnectionStatus();
@@ -225,6 +224,18 @@
                     this.logOperation('init_error', error);
                     console.error('Firebase initialization error:', error);
                     showError('Failed to initialize the application. Please refresh the page.', { type: 'error' });
+                }
+            }
+
+            handleConnectionError(error) {
+                this.logOperation('connection_error', error);
+                if (this.isOnline) {
+                    showError('Connection error. Attempting to reconnect...', { type: 'warning' });
+                    // Attempt to reconnect
+                    this.db.enableNetwork().catch(err => {
+                        this.logOperation('reconnect_error', err);
+                        showError('Failed to reconnect. Working in offline mode.', { type: 'warning' });
+                    });
                 }
             }
 
@@ -396,6 +407,7 @@
                     });
                     console.error('Error syncing with Firebase:', error);
                     this.syncQueue = [...this.syncQueue, ...this.syncQueue];
+                    showError('Failed to sync changes. Will retry later.', { type: 'warning' });
                 }
             }
 
