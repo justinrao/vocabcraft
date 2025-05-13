@@ -55,18 +55,25 @@
         </div>
     </div>
 
-    <div id="adminStats"
-        style="display: none; background:rgba(0, 0, 0, 0.9); color:#fff; padding:20px; border-radius:10px; max-width:90vw; max-height:80vh; position:fixed; top:50px; left:50%; transform:translateX(-50%); z-index:2000; font-family: 'VT323', monospace; flex-direction: column;">
-        <div style="position: sticky; top: 0; background: rgba(0, 0, 0, 0.9); padding-bottom: 10px; border-bottom: 2px solid #ffd700; margin-bottom: 10px; z-index: 1;">
-            <h2 style="color: #ffd700; text-shadow: 2px 2px #3f3f3f; margin: 0;" id="adminStatsTitle">Admin Stats</h2>
+    <div id="adminStats">
+        <div class="sticky-header">
+            <h2>Admin Statistics</h2>
         </div>
-        <div style="overflow-y: auto; flex: 1; padding-right: 10px;">
-            <!-- Content will be inserted here -->
+        <div class="content">
+            <table class="admin-stats-table">
+                <thead>
+                    <tr>
+                        <th>Profile</th>
+                        <th>Questions Answered</th>
+                        <th>Correct Answers</th>
+                        <th>Success Rate</th>
+                    </tr>
+                </thead>
+                <tbody id="adminStatsBody">
+                </tbody>
+            </table>
         </div>
-        <button onclick="document.getElementById('adminStats').style.display='none'" 
-            style="position: sticky; bottom: 0; background-color: rgba(255, 193, 7, 0.7); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-family: 'VT323', monospace; font-size: 1.1em; margin-top: 10px; width: 100%;">
-            Close
-        </button>
+        <button class="close-button" onclick="document.getElementById('adminStats').style.display='none'">Close</button>
     </div>
 
     <script src="version.js" type="module"></script>
@@ -560,6 +567,9 @@
                     console.error('No game state found for profile:', profileId);
                     return;
                 }
+
+                // Set the current profile
+                this.currentProfile = profileId;
 
                 // Get all required elements
                 const profileContainer = document.getElementById('profileContainer');
@@ -1859,18 +1869,18 @@
             
             const currentProfile = profileManager.currentProfile;
             if (!currentProfile) {
-                alert('Please select a profile first!');
+                showError('Please select a profile first!', 3000, 'center', 'warning');
                 return;
             }
 
             // Refresh profile data from Firestore
             await profileManager.loadProfiles();
             const profileData = profileManager.profiles[currentProfile];
-            const contentDiv = statsDiv.querySelector('div:nth-child(2)');
-            const titleElement = document.getElementById('adminStatsTitle');
+            const contentDiv = statsDiv.querySelector('.content');
             
             // Update the title with profile name
-            titleElement.textContent = `Stats for ${currentProfile}`;
+            const titleElement = statsDiv.querySelector('.sticky-header h2');
+            titleElement.textContent = `Stats for ${profileData.name}`;
             
             let html = '';
             
@@ -1906,8 +1916,8 @@
                 }
                 
                 html += `<h3 style="color: #ffd700; margin-top: 20px;">${displayPrefix}</h3>`;
-                html += '<table border="1" cellpadding="4" style="border-collapse:collapse; margin-bottom:20px; width:100%; color:#fff;">';
-                html += '<tr style="background-color: rgba(255, 193, 7, 0.3);"><th>Word</th><th>Meaning</th><th>Correct</th><th>Incorrect</th><th>Success Rate</th></tr>';
+                html += '<table class="admin-stats-table">';
+                html += '<tr><th>Word</th><th>Meaning</th><th>Correct</th><th>Incorrect</th><th>Success Rate</th></tr>';
                 
                 // Sort questions within group by their number
                 const sortedQuestions = groupedQuestions[prefix].sort((a, b) => {
@@ -1965,103 +1975,24 @@
         });
 
         // Add this utility function at the top of the script section, after the style tag
-        function showError(message, options = {}) {
-            const {
-                duration = 5000,
-                position = 'center', // 'center', 'top', or 'bottom'
-                type = 'error', // 'error', 'warning', or 'info'
-                autoClose = true
-            } = options;
+        function showError(message, duration = 3000, position = 'center', type = 'error', autoClose = true) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = `error-message ${position} ${type}`;
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
 
-            // Remove any existing error messages
-            const existingErrors = document.querySelectorAll('.error-message');
-            existingErrors.forEach(error => error.remove());
+            // Force a reflow to ensure the transition works
+            errorDiv.offsetHeight;
+            errorDiv.style.opacity = '1';
 
-            const errorMessage = document.createElement('div');
-            errorMessage.className = 'error-message';
-            
-            // Set base styles
-            const baseStyles = {
-                position: 'fixed',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                padding: '15px 25px',
-                borderRadius: '10px',
-                zIndex: '2000',
-                fontFamily: "'VT323', monospace",
-                fontSize: '1.2em',
-                textAlign: 'center',
-                boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
-                maxWidth: '80%',
-                opacity: '0',
-                transition: 'opacity 0.3s ease-in-out'
-            };
-
-            // Set position-specific styles
-            switch (position) {
-                case 'top':
-                    Object.assign(baseStyles, {
-                        top: '20px',
-                        transform: 'translate(-50%, 0)'
-                    });
-                    break;
-                case 'bottom':
-                    Object.assign(baseStyles, {
-                        bottom: '20px',
-                        transform: 'translate(-50%, 0)'
-                    });
-                    break;
-                default: // center
-                    Object.assign(baseStyles, {
-                        top: '50%',
-                        transform: 'translate(-50%, -50%)'
-                    });
-            }
-
-            // Set type-specific styles
-            switch (type) {
-                case 'warning':
-                    Object.assign(baseStyles, {
-                        backgroundColor: 'rgba(255, 193, 7, 0.9)',
-                        color: 'black'
-                    });
-                    break;
-                case 'info':
-                    Object.assign(baseStyles, {
-                        backgroundColor: 'rgba(33, 150, 243, 0.9)',
-                        color: 'white'
-                    });
-                    break;
-                default: // error
-                    Object.assign(baseStyles, {
-                        backgroundColor: 'rgba(244, 67, 54, 0.9)',
-                        color: 'white'
-                    });
-            }
-
-            // Apply styles
-            Object.assign(errorMessage.style, baseStyles);
-
-            // Set content
-            errorMessage.innerHTML = message;
-
-            // Add to document
-            document.body.appendChild(errorMessage);
-
-            // Trigger animation
-            requestAnimationFrame(() => {
-                errorMessage.style.opacity = '1';
-            });
-
-            // Auto-close if enabled
             if (autoClose) {
                 setTimeout(() => {
-                    errorMessage.style.opacity = '0';
-                    setTimeout(() => errorMessage.remove(), 300);
+                    errorDiv.style.opacity = '0';
+                    setTimeout(() => errorDiv.remove(), 300);
                 }, duration);
             }
 
-            return errorMessage;
+            return errorDiv;
         }
     </script>
 </body>

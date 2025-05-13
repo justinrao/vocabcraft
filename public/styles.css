@@ -726,4 +726,156 @@ h1 {
     .mobile-control-button {
         padding: 12px;
     }
+}
+
+/* Admin Stats Styles */
+#adminStats {
+    display: none;
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 90vw;
+    max-height: 80vh;
+    position: fixed;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+    font-family: 'VT323', monospace;
+    flex-direction: column;
+}
+
+#adminStats .sticky-header {
+    position: sticky;
+    top: 0;
+    background: rgba(0, 0, 0, 0.9);
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ffd700;
+    margin-bottom: 10px;
+    z-index: 1;
+}
+
+#adminStats h2 {
+    color: #ffd700;
+    text-shadow: 2px 2px #3f3f3f;
+    margin: 0;
+}
+
+#adminStats .content {
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 10px;
+}
+
+#adminStats .close-button {
+    position: sticky;
+    bottom: 0;
+    background-color: rgba(255, 193, 7, 0.7);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'VT323', monospace;
+    font-size: 1.1em;
+    margin-top: 10px;
+    width: 100%;
+}
+
+#adminStats .close-button:hover {
+    background-color: rgba(255, 193, 7, 0.9);
+}
+
+/* Loading Message Styles */
+.loading-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    border-radius: 10px;
+    z-index: 9999;
+}
+
+/* Error Message Styles */
+.error-message {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 25px;
+    border-radius: 10px;
+    z-index: 2000;
+    font-family: 'VT323', monospace;
+    font-size: 1.2em;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    max-width: 80%;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.error-message.center {
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.error-message.top {
+    top: 20px;
+    transform: translate(-50%, 0);
+}
+
+.error-message.bottom {
+    bottom: 20px;
+    transform: translate(-50%, 0);
+}
+
+.error-message.error {
+    background-color: rgba(244, 67, 54, 0.9);
+    color: white;
+}
+
+.error-message.warning {
+    background-color: rgba(255, 193, 7, 0.9);
+    color: black;
+}
+
+.error-message.info {
+    background-color: rgba(33, 150, 243, 0.9);
+    color: white;
+}
+
+/* Admin Stats Table Styles */
+.admin-stats-table {
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    width: 100%;
+    color: #fff;
+}
+
+.admin-stats-table th {
+    background-color: rgba(255, 193, 7, 0.3);
+    padding: 4px;
+}
+
+.admin-stats-table td {
+    padding: 4px;
+}
+
+.admin-stats-table tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.admin-stats-table tr:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.success-rate-good {
+    color: #4CAF50;
+}
+
+.success-rate-poor {
+    color: #f44336;
 } 
