@@ -1,3 +1,6 @@
+// Import VocabCraft class
+import VocabCraft from './game.js';
+
 // ProfileManager class to handle user profiles and game state persistence
 class ProfileManager {
     constructor() {
@@ -402,11 +405,21 @@ class ProfileManager {
 
         profileList.innerHTML = '';
 
-        // Sort profiles by name
+        // Sort profiles by name, with null safety
         const sortedProfiles = Object.entries(this.profiles)
-            .sort(([, a], [, b]) => a.name.localeCompare(b.name));
+            .filter(([, data]) => data && typeof data === 'object') // Filter out invalid profiles
+            .sort(([, a], [, b]) => {
+                const nameA = (a.name || '').toLowerCase();
+                const nameB = (b.name || '').toLowerCase();
+                return nameA.localeCompare(nameB);
+            });
 
         sortedProfiles.forEach(([id, data]) => {
+            if (!data || typeof data !== 'object') {
+                console.warn('Invalid profile data for id:', id);
+                return;
+            }
+
             const profileItem = document.createElement('div');
             profileItem.className = 'profile-item';
 
@@ -415,11 +428,12 @@ class ProfileManager {
 
             const profileName = document.createElement('div');
             profileName.className = 'profile-name';
-            profileName.textContent = data.name;
+            profileName.textContent = data.name || 'Unnamed Profile';
 
             const profileStats = document.createElement('div');
             profileStats.className = 'profile-stats';
-            profileStats.textContent = `Score: ${data.score} | Last saved: ${new Date(data.lastSaved).toLocaleString()}`;
+            const lastSaved = data.lastSaved ? new Date(data.lastSaved).toLocaleString() : 'Never';
+            profileStats.textContent = `Score: ${data.score || 0} | Last saved: ${lastSaved}`;
 
             const deleteButton = document.createElement('button');
             deleteButton.className = 'delete-profile';

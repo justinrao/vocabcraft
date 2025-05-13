@@ -1,3 +1,7 @@
+// Import required classes
+import Character from './character.js';
+import { getBlockStyle, makeBlockDraggable } from './block-utils.js';
+
 // Game class to manage the overall game state
 class VocabCraft {
     constructor(profileManager, profileName) {
@@ -261,8 +265,8 @@ class VocabCraft {
                 throw new Error(`No question found for index: ${this.currentQuestion}`);
             }
 
-            const questionElement = document.getElementById('question');
-            const optionsContainer = document.getElementById('options');
+            const questionElement = document.getElementById('questionText');
+            const optionsContainer = document.getElementById('optionsContainer');
 
             if (!questionElement || !optionsContainer) {
                 throw new Error('Question elements not found');
@@ -301,7 +305,7 @@ class VocabCraft {
             console.error('No question found for index:', this.currentQuestion);
             return;
         }
-        const optionsContainer = document.getElementById('options');
+        const optionsContainer = document.getElementById('optionsContainer');
         const buttons = optionsContainer.getElementsByClassName('option');
         // Track stats
         const profile = this.profileManager.profiles[this.profileManager.currentProfile];
@@ -316,7 +320,7 @@ class VocabCraft {
                 if (selectedAnswer === question.meaning) {
                     button.style.backgroundColor = '#4CAF50';
                     this.score += 10;
-                    document.getElementById('score').textContent = this.score;
+                    document.getElementById('scoreDisplay').textContent = `Score: ${this.score}`;
                     this.addBonusBlock();
                     wasCorrect = true;
                 } else {
