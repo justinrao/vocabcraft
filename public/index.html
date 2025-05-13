@@ -949,8 +949,9 @@
                 if (this.currentQuestion >= this.vocabulary.length) {
                     this.currentQuestion = 0;
                 }
-                // Initialize block counts
-                this.blockCounts = {
+
+                // Initialize block counts from saved state
+                this.blockCounts = gameState.blockCounts || {
                     dirt: 0,
                     stone: 0,
                     wood: 0,
@@ -990,11 +991,11 @@
                     this.character.element.style.top = this.character.posY + 'px';
                 }
 
+                // Update inventory display with the loaded block counts
+                this.updateBlockCounts();
+
                 // Show current question
                 this.showQuestion();
-
-                // Update inventory display
-                this.createInventorySelector();
 
                 // Ensure building area is visible
                 buildingArea.style.display = 'block';
@@ -1025,7 +1026,7 @@
                     name: this.name,
                     currentQuestionId: this.vocabulary[this.currentQuestion]?.id || null,
                     currentQuestion: this.currentQuestion,
-                    blockCounts: currentBlockCounts,
+                    blockCounts: currentBlockCounts, // Save the combined block counts
                     blocks: this.blocks.map(block => ({
                         type: this.character.getBlockType(block),
                         x: parseInt(block.style.left),
@@ -1265,16 +1266,27 @@
             }
 
             updateBlockCounts() {
-                console.log('Updating all block counts:', this.blockCounts);
+                console.log('Updating block counts:', this.blockCounts);
                 const selector = document.getElementById('inventorySelector');
-                if (selector) {
-                    selector.querySelectorAll('.inventory-slot').forEach(slot => {
-                        const type = slot.dataset.type;
-                        this.updateSlotAppearance(slot, type);
-                    });
-                } else {
-                    console.log('Inventory selector not found');
+                if (!selector) {
+                    console.error('Inventory selector not found');
+                    return;
                 }
+
+                selector.querySelectorAll('.inventory-slot').forEach(slot => {
+                    const type = slot.dataset.type;
+                    const count = this.blockCounts[type] || 0;
+                    const countElement = slot.querySelector('.block-count');
+                    
+                    if (countElement) {
+                        countElement.textContent = count.toString();
+                        if (count === 0) {
+                            slot.classList.add('empty');
+                        } else {
+                            slot.classList.remove('empty');
+                        }
+                    }
+                });
             }
 
             placeBlock(x, y) {
