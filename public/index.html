@@ -898,12 +898,11 @@
                         apiKey: "AIzaSyCSZUNwL45dj49Nq-NPD5aAJDi7ooxUxnk",
                         authDomain: "vocabcraft-81563.firebaseapp.com",
                         projectId: "vocabcraft-81563",
-                        storageBucket: "vocabcraft-81563.appspot.com", // Fixed storage bucket URL
+                        storageBucket: "vocabcraft-81563.appspot.com",
                         messagingSenderId: "238507816169",
                         appId: "1:238507816169:web:ecdcdce8634db70c53ac78"
                     };
 
-                    // Initialize Firebase if not already initialized
                     if (!firebase.apps.length) {
                         try {
                             firebase.initializeApp(firebaseConfig);
@@ -911,6 +910,7 @@
                         } catch (initError) {
                             this.logOperation('init_error', initError);
                             console.error('Firebase initialization error:', initError);
+                            showError('Failed to initialize Firebase. Please check your configuration.', { type: 'error' });
                             throw initError;
                         }
                     }
@@ -918,9 +918,7 @@
                     this.db = firebase.firestore();
                     this.auth = firebase.auth();
                     
-                    // Sign in anonymously with proper error handling
                     try {
-                        // First check if user is already signed in
                         const currentUser = this.auth.currentUser;
                         if (currentUser) {
                             this.logOperation('auth', 'User already signed in', { uid: currentUser.uid });
@@ -931,96 +929,40 @@
                     } catch (authError) {
                         this.logOperation('auth_error', authError);
                         console.error('Anonymous authentication failed:', authError);
-                        
-                        // Show a user-friendly error message
-                        const errorMessage = document.createElement('div');
-                        errorMessage.style.cssText = `
-                            position: fixed;
-                            top: 10px;
-                            left: 50%;
-                            transform: translateX(-50%);
-                            background-color: rgba(244, 67, 54, 0.9);
-                            color: white;
-                            padding: 10px 20px;
-                            border-radius: 5px;
-                            z-index: 2000;
-                            font-family: 'VT323', monospace;
-                            font-size: 1.2em;
-                            text-align: center;
-                            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-                        `;
-                        errorMessage.textContent = 'Authentication error. Please check your Firebase configuration.';
-                        document.body.appendChild(errorMessage);
-                        
-                        // Remove message after 5 seconds
-                        setTimeout(() => {
-                            errorMessage.style.opacity = '0';
-                            errorMessage.style.transition = 'opacity 0.5s ease-out';
-                            setTimeout(() => errorMessage.remove(), 500);
-                        }, 5000);
-                        
-                        // Continue without authentication - the app will work in offline mode
+                        showError('Authentication error. The app will work in offline mode.', { type: 'warning' });
                     }
                     
-                    // Enable Firestore logging and offline persistence
                     try {
                         await this.db.enablePersistence();
                         this.logOperation('persistence', 'Enabled offline persistence');
                     } catch (err) {
                         this.logOperation('persistence_error', err);
                         console.warn('Offline persistence not available:', err);
+                        showError('Offline mode is not available. Some features may be limited.', { type: 'warning' });
                     }
 
-                    // Set up connection state listener
                     this.db.enableNetwork().catch(err => {
                         this.logOperation('network_error', err);
                         console.warn('Network connection failed:', err);
+                        showError('Network connection failed. Working in offline mode.', { type: 'warning' });
                     });
 
-                    this.db.waitForPendingWrites().then(() => {
-                        this.logOperation('pending_writes', 'All pending writes completed');
-                    }).catch(err => {
-                        this.logOperation('pending_writes_error', err);
-                    });
-
-                    // Load profiles and render
                     await this.loadProfiles();
                     this.renderProfileList();
                     this.updateConnectionStatus();
                 } catch (error) {
                     this.logOperation('init_error', error);
                     console.error('Firebase initialization error:', error);
-                    this.showOfflineMessage();
+                    showError('Failed to initialize the application. Please refresh the page.', { type: 'error' });
                 }
             }
 
             showOfflineMessage() {
-                const messageDiv = document.createElement('div');
-                messageDiv.id = 'offlineMessage';
-                messageDiv.style.cssText = `
-                    position: fixed;
-                    top: 10px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    background-color: rgba(255, 193, 7, 0.9);
-                    color: black;
-                    padding: 10px 20px;
-                    border-radius: 5px;
-                    z-index: 2000;
-                    font-family: 'VT323', monospace;
-                    font-size: 1.2em;
-                    text-align: center;
-                    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-                `;
-                messageDiv.textContent = 'Working in offline mode. Changes will sync when connection is restored.';
-                document.body.appendChild(messageDiv);
-
-                // Remove message after 5 seconds
-                setTimeout(() => {
-                    messageDiv.style.opacity = '0';
-                    messageDiv.style.transition = 'opacity 0.5s ease-out';
-                    setTimeout(() => messageDiv.remove(), 500);
-                }, 5000);
+                showError('Working in offline mode. Changes will sync when connection is restored.', {
+                    type: 'warning',
+                    position: 'top',
+                    duration: 5000
+                });
             }
 
             updateConnectionStatus() {
@@ -1539,7 +1481,6 @@
 
             async loadVocabulary() {
                 try {
-                    // Try loading from the current path first
                     const response = await fetch('/vocabulary.json');
                     if (!response.ok) {
                         throw new Error(`Failed to load vocabulary: ${response.status} ${response.statusText}`);
@@ -1552,32 +1493,11 @@
                     console.log('Vocabulary loaded successfully:', this.vocabulary.length, 'words');
                 } catch (error) {
                     console.error('Error loading vocabulary:', error);
-                    // Show error message to user
-                    const errorMessage = document.createElement('div');
-                    errorMessage.style.cssText = `
-                        position: fixed;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        background-color: rgba(244, 67, 54, 0.9);
-                        color: white;
-                        padding: 20px;
-                        border-radius: 10px;
-                        z-index: 2000;
-                        font-family: 'VT323', monospace;
-                        font-size: 1.2em;
-                        text-align: center;
-                        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-                        max-width: 80%;
-                    `;
-                    errorMessage.innerHTML = `
+                    showError(`
                         <h3 style="margin-top: 0;">Error Loading Vocabulary</h3>
                         <p>${error.message}</p>
                         <p>Please try refreshing the page. If the problem persists, contact support.</p>
-                    `;
-                    document.body.appendChild(errorMessage);
-                    
-                    // Fallback to empty vocabulary
+                    `, { duration: 10000 });
                     this.vocabulary = [];
                     throw error;
                 }
@@ -2773,6 +2693,106 @@
                 adminStats.style.display = 'none';
             }
         });
+
+        // Add this utility function at the top of the script section, after the style tag
+        function showError(message, options = {}) {
+            const {
+                duration = 5000,
+                position = 'center', // 'center', 'top', or 'bottom'
+                type = 'error', // 'error', 'warning', or 'info'
+                autoClose = true
+            } = options;
+
+            // Remove any existing error messages
+            const existingErrors = document.querySelectorAll('.error-message');
+            existingErrors.forEach(error => error.remove());
+
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'error-message';
+            
+            // Set base styles
+            const baseStyles = {
+                position: 'fixed',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                padding: '15px 25px',
+                borderRadius: '10px',
+                zIndex: '2000',
+                fontFamily: "'VT323', monospace",
+                fontSize: '1.2em',
+                textAlign: 'center',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                maxWidth: '80%',
+                opacity: '0',
+                transition: 'opacity 0.3s ease-in-out'
+            };
+
+            // Set position-specific styles
+            switch (position) {
+                case 'top':
+                    Object.assign(baseStyles, {
+                        top: '20px',
+                        transform: 'translate(-50%, 0)'
+                    });
+                    break;
+                case 'bottom':
+                    Object.assign(baseStyles, {
+                        bottom: '20px',
+                        transform: 'translate(-50%, 0)'
+                    });
+                    break;
+                default: // center
+                    Object.assign(baseStyles, {
+                        top: '50%',
+                        transform: 'translate(-50%, -50%)'
+                    });
+            }
+
+            // Set type-specific styles
+            switch (type) {
+                case 'warning':
+                    Object.assign(baseStyles, {
+                        backgroundColor: 'rgba(255, 193, 7, 0.9)',
+                        color: 'black'
+                    });
+                    break;
+                case 'info':
+                    Object.assign(baseStyles, {
+                        backgroundColor: 'rgba(33, 150, 243, 0.9)',
+                        color: 'white'
+                    });
+                    break;
+                default: // error
+                    Object.assign(baseStyles, {
+                        backgroundColor: 'rgba(244, 67, 54, 0.9)',
+                        color: 'white'
+                    });
+            }
+
+            // Apply styles
+            Object.assign(errorMessage.style, baseStyles);
+
+            // Set content
+            errorMessage.innerHTML = message;
+
+            // Add to document
+            document.body.appendChild(errorMessage);
+
+            // Trigger animation
+            requestAnimationFrame(() => {
+                errorMessage.style.opacity = '1';
+            });
+
+            // Auto-close if enabled
+            if (autoClose) {
+                setTimeout(() => {
+                    errorMessage.style.opacity = '0';
+                    setTimeout(() => errorMessage.remove(), 300);
+                }, duration);
+            }
+
+            return errorMessage;
+        }
     </script>
 </body>
 
