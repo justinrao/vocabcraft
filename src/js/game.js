@@ -102,16 +102,57 @@ class VocabCraft {
             const profileNameDisplay = document.getElementById('profileNameDisplay');
             const quizSection = document.getElementById('quizSection');
             const inventorySelector = document.getElementById('inventorySelector');
+            const buildingSection = document.getElementById('buildingSection');
+            const buildingArea = document.getElementById('buildingArea');
+            const buildingToggle = document.getElementById('buildingToggle');
 
             // Verify elements exist
-            if (!profileNameDisplay || !quizSection || !inventorySelector) {
+            if (!profileNameDisplay || !quizSection || !inventorySelector || !buildingSection || !buildingArea) {
                 throw new Error('Required UI elements not found');
+            }
+
+            // Hide profile container if it exists
+            const profileContainer = document.getElementById('profileContainer');
+            if (profileContainer) {
+                profileContainer.style.display = 'none';
             }
 
             // Set up UI elements
             profileNameDisplay.textContent = `Profile: ${this.profileName}`;
-            quizSection.style.display = 'block';
             inventorySelector.style.display = 'flex';
+
+            // Check if we're on mobile
+            const isMobile = window.innerWidth <= 768;
+            console.log('Is mobile view:', isMobile);
+
+            if (isMobile) {
+                // Mobile view: Show quiz first, hide building area
+                quizSection.classList.add('visible');
+                buildingSection.style.display = 'none';
+                buildingToggle.style.display = 'block';
+
+                // Initialize building toggle for mobile
+                if (buildingToggle) {
+                    buildingToggle.addEventListener('click', () => {
+                        const isBuildingVisible = buildingSection.classList.contains('visible');
+                        if (isBuildingVisible) {
+                            buildingSection.classList.remove('visible');
+                            quizSection.classList.add('visible');
+                            buildingToggle.textContent = 'Show Building Area';
+                        } else {
+                            quizSection.classList.remove('visible');
+                            buildingSection.classList.add('visible');
+                            buildingToggle.textContent = 'Show Quiz';
+                        }
+                    });
+                }
+            } else {
+                // Desktop view: Show both sections side by side
+                quizSection.classList.add('visible');
+                buildingSection.classList.add('visible');
+                buildingSection.style.display = 'block';
+                buildingToggle.style.display = 'none';
+            }
 
             // Create character
             console.log('Creating character');
@@ -127,6 +168,15 @@ class VocabCraft {
             // Show first question
             console.log('Showing first question');
             this.showQuestion();
+
+            // Add window resize handler
+            window.addEventListener('resize', () => {
+                const newIsMobile = window.innerWidth <= 768;
+                if (newIsMobile !== isMobile) {
+                    // Reload the page when switching between mobile and desktop
+                    window.location.reload();
+                }
+            });
 
             console.log('Game initialization complete');
         } catch (error) {
@@ -267,14 +317,17 @@ class VocabCraft {
 
             const questionElement = document.getElementById('questionText');
             const optionsContainer = document.getElementById('optionsContainer');
+            const scoreDisplay = document.getElementById('scoreDisplay');
 
-            if (!questionElement || !optionsContainer) {
-                throw new Error('Question elements not found');
+            if (!questionElement || !optionsContainer || !scoreDisplay) {
+                throw new Error('Required question elements not found');
             }
 
+            // Update question text
             questionElement.textContent =
                 `What is the meaning of "${question.word}"?\n\nExample: ${question.example}`;
 
+            // Clear previous options
             optionsContainer.innerHTML = '';
 
             // Create a copy of options array and shuffle it
@@ -293,9 +346,22 @@ class VocabCraft {
                 optionsContainer.appendChild(button);
             });
 
-            console.log('Question displayed successfully');
+            // Update score display
+            scoreDisplay.textContent = `Score: ${this.score}`;
+
         } catch (error) {
             console.error('Error showing question:', error);
+            // Show error message to user
+            const quizSection = document.getElementById('quizSection');
+            if (quizSection) {
+                quizSection.innerHTML = `
+                    <h1>VocabCraft</h1>
+                    <div style="color: white; text-align: center; padding: 20px;">
+                        <p>Sorry, there was an error loading the question.</p>
+                        <p>Please try refreshing the page.</p>
+                    </div>
+                `;
+            }
         }
     }
 
