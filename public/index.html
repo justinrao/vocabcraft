@@ -10,6 +10,85 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* ... existing styles ... */
+
+        .mobile-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: auto;
+            min-width: 200px;
+            display: none;
+            pointer-events: auto;
+            border: 2px solid red;
+        }
+
+        .mobile-controls.visible {
+            display: block !important;
+        }
+
+        .mobile-controls-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+            place-items: center;
+        }
+
+        .mobile-control-button {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            transition: background-color 0.2s ease;
+        }
+
+        .mobile-control-button:active {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0.95);
+        }
+
+        .mobile-action-buttons {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+        }
+
+        .mobile-action-buttons .mobile-control-button {
+            width: auto;
+            height: 50px;
+            padding: 0 25px;
+            border-radius: 25px;
+            font-size: 18px;
+        }
+
+        .building-toggle {
+            position: relative;
+            z-index: 1000;
+        }
+
+        /* Debug styles - remove after testing */
+        .mobile-controls {
+            border: 2px solid red; /* Temporary border to see the container */
+        }
+    </style>
 </head>
 
 <body>
@@ -752,54 +831,108 @@
                     const quizSection = document.getElementById('quizSection');
                     const mobileControls = document.querySelector('.mobile-controls');
                     
+                    console.log('UI Elements found:', {
+                        buildingToggle: !!buildingToggle,
+                        buildingArea: !!buildingArea,
+                        quizSection: !!quizSection,
+                        mobileControls: !!mobileControls
+                    });
+                    
                     if (buildingToggle && buildingArea && quizSection) {
                         // Remove any existing event listeners
                         const newBuildingToggle = buildingToggle.cloneNode(true);
                         buildingToggle.parentNode.replaceChild(newBuildingToggle, buildingToggle);
 
-                        newBuildingToggle.addEventListener('click', (e) => {
-                            e.preventDefault(); // Prevent any default behavior
-                            e.stopPropagation(); // Stop event bubbling
+                        // State management
+                        let currentView = 'quiz'; // 'quiz' or 'building'
+                        let isTransitioning = false;
+                        let lastToggleTime = 0;
+                        const TOGGLE_COOLDOWN = 1000; // 1 second cooldown
+
+                        const switchToBuilding = () => {
+                            console.log('Switching to building view');
+                            quizSection.classList.remove('visible');
+                            buildingArea.classList.add('visible');
+                            newBuildingToggle.textContent = 'Show Quiz';
                             
-                            const isBuildingVisible = buildingArea.classList.contains('visible');
-                            console.log('Toggle clicked, current state:', isBuildingVisible ? 'Building' : 'Quiz');
-                            
-                            // Toggle views
-                            if (isBuildingVisible) {
-                                // Switch to quiz view
-                                buildingArea.classList.remove('visible');
-                                quizSection.classList.add('visible');
-                                newBuildingToggle.textContent = 'Show Building Area';
-                                
-                                // Hide mobile controls
-                                if (mobileControls) {
-                                    mobileControls.classList.remove('visible');
-                                    setTimeout(() => {
-                                        mobileControls.style.display = 'none';
-                                    }, 300);
-                                }
-                            } else {
-                                // Switch to building view
-                                quizSection.classList.remove('visible');
-                                buildingArea.classList.add('visible');
-                                newBuildingToggle.textContent = 'Show Quiz';
-                                
-                                // Show mobile controls
-                                if (mobileControls) {
-                                    mobileControls.style.display = 'block';
-                                    setTimeout(() => {
-                                        mobileControls.classList.add('visible');
-                                    }, 10);
-                                }
+                            const mobileControls = document.querySelector('.mobile-controls');
+                            if (mobileControls) {
+                                console.log('Showing mobile controls');
+                                mobileControls.classList.add('visible');
+                                console.log('Mobile controls state:', {
+                                    display: mobileControls.style.display,
+                                    classList: mobileControls.classList.toString(),
+                                    computedDisplay: window.getComputedStyle(mobileControls).display,
+                                    position: mobileControls.getBoundingClientRect()
+                                });
                             }
                             
-                            console.log('View switched:', isBuildingVisible ? 'Quiz' : 'Building');
+                            currentView = 'building';
+                        };
+
+                        const switchToQuiz = () => {
+                            console.log('Switching to quiz view');
+                            buildingArea.classList.remove('visible');
+                            quizSection.classList.add('visible');
+                            newBuildingToggle.textContent = 'Show Building Area';
+                            
+                            const mobileControls = document.querySelector('.mobile-controls');
+                            if (mobileControls) {
+                                console.log('Hiding mobile controls');
+                                mobileControls.classList.remove('visible');
+                            }
+                            
+                            currentView = 'quiz';
+                        };
+
+                        const toggleView = async () => {
+                            const now = Date.now();
+                            if (isTransitioning || (now - lastToggleTime) < TOGGLE_COOLDOWN) {
+                                console.log('Toggle blocked:', {
+                                    isTransitioning,
+                                    timeSinceLastToggle: now - lastToggleTime,
+                                    cooldown: TOGGLE_COOLDOWN
+                                });
+                                return;
+                            }
+
+                            console.log('Toggle clicked, current view:', currentView);
+                            isTransitioning = true;
+                            lastToggleTime = now;
+
+                            try {
+                                if (currentView === 'quiz') {
+                                    switchToBuilding();
+                                } else {
+                                    switchToQuiz();
+                                }
+                            } finally {
+                                // Add a delay before allowing another toggle
+                                await new Promise(resolve => setTimeout(resolve, 500));
+                                isTransitioning = false;
+                                console.log('Toggle transition complete');
+                            }
+                        };
+
+                        // Add click handler with debouncing
+                        let clickTimeout;
+                        newBuildingToggle.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            // Clear any existing timeout
+                            if (clickTimeout) {
+                                clearTimeout(clickTimeout);
+                            }
+                            
+                            // Set new timeout
+                            clickTimeout = setTimeout(() => {
+                                toggleView();
+                            }, 50); // Small delay to debounce rapid clicks
                         });
 
                         // Set initial state
-                        quizSection.classList.add('visible');
-                        buildingArea.classList.remove('visible');
-                        newBuildingToggle.textContent = 'Show Building Area';
+                        switchToQuiz();
                     }
 
                     // Initialize game components
@@ -1438,6 +1571,192 @@
             }
 
             initControls() {
+                console.log('Initializing controls...');
+                
+                // Touch controls
+                const mobileControls = document.querySelector('.mobile-controls');
+                console.log('Found mobile controls element:', mobileControls);
+                
+                if (mobileControls) {
+                    console.log('Creating new mobile controls...');
+                    // Create new mobile controls
+                    const newMobileControls = document.createElement('div');
+                    newMobileControls.className = 'mobile-controls';
+                    newMobileControls.style.cssText = `
+                        position: fixed;
+                        bottom: 20px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        z-index: 100;
+                        background: rgba(0, 0, 0, 0.7);
+                        padding: 15px;
+                        border-radius: 15px;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                        width: auto;
+                        min-width: 200px;
+                        border: 2px solid red;
+                    `;
+                    
+                    newMobileControls.innerHTML = `
+                        <div class="mobile-controls-grid" style="
+                            display: grid;
+                            grid-template-columns: repeat(3, 1fr);
+                            gap: 15px;
+                            margin-bottom: 15px;
+                            place-items: center;
+                        ">
+                            <div class="mobile-control-button" data-action="up" style="
+                                width: 70px;
+                                height: 70px;
+                                background: rgba(255, 255, 255, 0.2);
+                                border: 2px solid white;
+                                border-radius: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                color: white;
+                                font-size: 28px;
+                            ">↑</div>
+                            <div class="mobile-control-button" data-action="left" style="
+                                width: 70px;
+                                height: 70px;
+                                background: rgba(255, 255, 255, 0.2);
+                                border: 2px solid white;
+                                border-radius: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                color: white;
+                                font-size: 28px;
+                            ">←</div>
+                            <div class="mobile-control-button" data-action="right" style="
+                                width: 70px;
+                                height: 70px;
+                                background: rgba(255, 255, 255, 0.2);
+                                border: 2px solid white;
+                                border-radius: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                color: white;
+                                font-size: 28px;
+                            ">→</div>
+                            <div class="mobile-control-button" data-action="down" style="
+                                width: 70px;
+                                height: 70px;
+                                background: rgba(255, 255, 255, 0.2);
+                                border: 2px solid white;
+                                border-radius: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                color: white;
+                                font-size: 28px;
+                            ">↓</div>
+                        </div>
+                        <div class="mobile-action-buttons" style="
+                            display: flex;
+                            justify-content: space-around;
+                            gap: 15px;
+                        ">
+                            <div class="mobile-control-button" data-action="mine" style="
+                                width: auto;
+                                height: 50px;
+                                padding: 0 25px;
+                                background: rgba(255, 255, 255, 0.2);
+                                border: 2px solid white;
+                                border-radius: 25px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                color: white;
+                                font-size: 18px;
+                            ">Mine</div>
+                            <div class="mobile-control-button" data-action="place" style="
+                                width: auto;
+                                height: 50px;
+                                padding: 0 25px;
+                                background: rgba(255, 255, 255, 0.2);
+                                border: 2px solid white;
+                                border-radius: 25px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                color: white;
+                                font-size: 18px;
+                            ">Place</div>
+                            <div class="mobile-control-button" data-action="inventory" style="
+                                width: auto;
+                                height: 50px;
+                                padding: 0 25px;
+                                background: rgba(255, 255, 255, 0.2);
+                                border: 2px solid white;
+                                border-radius: 25px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                color: white;
+                                font-size: 18px;
+                            ">Inv</div>
+                        </div>
+                    `;
+
+                    console.log('New mobile controls created:', newMobileControls);
+                    console.log('Parent element:', mobileControls.parentNode);
+
+                    // Replace old controls with new ones
+                    mobileControls.parentNode.replaceChild(newMobileControls, mobileControls);
+                    console.log('Mobile controls replaced');
+
+                    // Add touch event listener
+                    newMobileControls.addEventListener('touchstart', (e) => {
+                        e.preventDefault(); // Prevent default touch behavior
+                        const button = e.target.closest('.mobile-control-button');
+                        if (!button) return;
+
+                        const action = button.dataset.action;
+                        console.log('Mobile control action:', action);
+
+                        switch (action) {
+                            case 'up':
+                                this.moveCharacter(0, -this.speed, 'back');
+                                break;
+                            case 'down':
+                                this.moveCharacter(0, this.speed, 'front');
+                                break;
+                            case 'left':
+                                this.moveCharacter(-this.speed, 0, 'left');
+                                break;
+                            case 'right':
+                                this.moveCharacter(this.speed, 0, 'right');
+                                break;
+                            case 'mine':
+                                this.mineBlock();
+                                break;
+                            case 'place':
+                                this.placeBlockInFront();
+                                break;
+                            case 'inventory':
+                                this.selectNextBlock();
+                                break;
+                        }
+                    }, { passive: false });
+
+                    // Show controls if in building mode
+                    const buildingArea = document.getElementById('buildingArea');
+                    console.log('Building area element:', buildingArea);
+                    console.log('Building area visibility:', buildingArea?.classList.contains('visible'));
+                    
+                    if (buildingArea && buildingArea.classList.contains('visible')) {
+                        console.log('Showing mobile controls...');
+                        newMobileControls.style.display = 'block';
+                        console.log('Mobile controls display style:', newMobileControls.style.display);
+                        console.log('Mobile controls computed style:', window.getComputedStyle(newMobileControls).display);
+                    }
+                } else {
+                    console.error('Mobile controls element not found in DOM');
+                }
+
                 // Keyboard controls
                 document.addEventListener('keydown', (e) => {
                     if (e.code === 'Space') {
@@ -1495,42 +1814,6 @@
                         }
                     }
                 });
-
-                // Touch controls
-                const mobileControls = document.querySelector('.mobile-controls');
-                if (mobileControls) {
-                    mobileControls.addEventListener('touchstart', (e) => {
-                        const button = e.target.closest('.mobile-control-button');
-                        if (!button) return;
-
-                        e.preventDefault();
-                        const action = button.dataset.action;
-
-                        switch (action) {
-                            case 'up':
-                                this.moveCharacter(0, -this.speed, 'back');
-                                break;
-                            case 'down':
-                                this.moveCharacter(0, this.speed, 'front');
-                                break;
-                            case 'left':
-                                this.moveCharacter(-this.speed, 0, 'left');
-                                break;
-                            case 'right':
-                                this.moveCharacter(this.speed, 0, 'right');
-                                break;
-                            case 'mine':
-                                this.mineBlock();
-                                break;
-                            case 'place':
-                                this.placeBlockInFront();
-                                break;
-                            case 'inventory':
-                                this.selectNextBlock();
-                                break;
-                        }
-                    });
-                }
             }
 
             moveCharacter(deltaX, deltaY, direction) {
