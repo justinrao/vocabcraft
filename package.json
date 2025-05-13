@@ -1,0 +1,24 @@
+{
+  "name": "vocabcraft",
+  "version": "1.0.0",
+  "description": "Learn vocabulary with Minecraft",
+  "scripts": {
+    "dev": "serve",
+    "deploy": "firebase deploy --only hosting"
+  },
+  "devDependencies": {
+    "firebase-tools": "^13.35.1",
+    "serve": "^14.2.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/justinrao/vocabcraft.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/justinrao/vocabcraft/issues"
+  },
+  "homepage": "https://github.com/justinrao/vocabcraft#readme"
+}
