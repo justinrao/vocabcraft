@@ -708,6 +708,7 @@
                 console.log('Initializing VocabCraft with profile:', profileId);
                 this.profileManager = profileManager;
                 this.profileId = profileId;
+                this.name = ''; // Initialize name property
                 this.vocabulary = [];
                 this.currentQuestion = 0;
                 this.score = 0;
@@ -720,55 +721,125 @@
                 };
                 this.selectedBlockType = null;
 
-                // Initialize building area toggle
-                const buildingToggle = document.getElementById('buildingToggle');
-                const buildingArea = document.getElementById('buildingArea');
-                const quizSection = document.getElementById('quizSection');
-                const mobileControls = document.querySelector('.mobile-controls');
-                
-                if (buildingToggle && buildingArea && quizSection) {
-                    buildingToggle.addEventListener('click', () => {
-                        const isBuildingVisible = buildingArea.classList.contains('visible');
-                        
-                        // Toggle views
-                        if (isBuildingVisible) {
-                            // Switch to quiz view
-                            buildingArea.classList.remove('visible');
-                            quizSection.classList.add('visible');
-                            buildingToggle.textContent = 'Show Building Area';
+                // Load game state first to get the profile name
+                this.loadGameState().then(() => {
+                    // Initialize building area toggle
+                    const buildingToggle = document.getElementById('buildingToggle');
+                    const buildingArea = document.getElementById('buildingArea');
+                    const quizSection = document.getElementById('quizSection');
+                    const mobileControls = document.querySelector('.mobile-controls');
+                    
+                    if (buildingToggle && buildingArea && quizSection) {
+                        buildingToggle.addEventListener('click', () => {
+                            const isBuildingVisible = buildingArea.classList.contains('visible');
                             
-                            // Hide mobile controls
-                            if (mobileControls) {
-                                mobileControls.classList.remove('visible');
-                                setTimeout(() => {
-                                    mobileControls.style.display = 'none';
-                                }, 300);
+                            // Toggle views
+                            if (isBuildingVisible) {
+                                // Switch to quiz view
+                                buildingArea.classList.remove('visible');
+                                quizSection.classList.add('visible');
+                                buildingToggle.textContent = 'Show Building Area';
+                                
+                                // Hide mobile controls
+                                if (mobileControls) {
+                                    mobileControls.classList.remove('visible');
+                                    setTimeout(() => {
+                                        mobileControls.style.display = 'none';
+                                    }, 300);
+                                }
+                            } else {
+                                // Switch to building view
+                                quizSection.classList.remove('visible');
+                                buildingArea.classList.add('visible');
+                                buildingToggle.textContent = 'Show Quiz';
+                                
+                                // Show mobile controls
+                                if (mobileControls) {
+                                    mobileControls.style.display = 'block';
+                                    setTimeout(() => {
+                                        mobileControls.classList.add('visible');
+                                    }, 10);
+                                }
                             }
-                        } else {
-                            // Switch to building view
-                            quizSection.classList.remove('visible');
-                            buildingArea.classList.add('visible');
-                            buildingToggle.textContent = 'Show Quiz';
                             
-                            // Show mobile controls
-                            if (mobileControls) {
-                                mobileControls.style.display = 'block';
-                                setTimeout(() => {
-                                    mobileControls.classList.add('visible');
-                                }, 10);
-                            }
-                        }
-                        
-                        console.log('View switched:', isBuildingVisible ? 'Quiz' : 'Building');
-                    });
-                }
+                            console.log('View switched:', isBuildingVisible ? 'Quiz' : 'Building');
+                        });
+                    }
 
-                // Load vocabulary before initializing the game
-                this.loadVocabulary().then(() => {
-                    // Initialize game components
-                    this.initGame();
-                    this.setupAutoSave();
+                    // Load vocabulary before initializing the game
+                    this.loadVocabulary().then(() => {
+                        // Initialize game components
+                        this.initGame();
+                        this.setupAutoSave();
+                    });
                 });
+            }
+
+            async loadGameState() {
+                try {
+                    const gameState = this.profileManager.loadProfile(this.profileId);
+                    if (!gameState) {
+                        console.error('No game state found for profile:', this.profileId);
+                        showError('No game state found for this profile');
+                        return;
+                    }
+
+                    console.log('Loading game state:', gameState);
+                    this.name = gameState.name || 'Unnamed Profile';
+                    this.score = gameState.score || 0;
+                    this.currentQuestion = gameState.currentQuestion || 0;
+                    this.blockCounts = gameState.blockCounts || {
+                        dirt: 0,
+                        stone: 0,
+                        wood: 0,
+                        glass: 0
+                    };
+                    this.blocks = gameState.blocks || [];
+
+                    // Only update character position if character exists
+                    if (gameState.characterPosition && this.character) {
+                        this.character.posX = gameState.characterPosition.x;
+                        this.character.posY = gameState.characterPosition.y;
+                    }
+
+                    // Update display after loading state
+                    this.updateDisplay();
+                    return true;
+                } catch (error) {
+                    console.error('Error loading game state:', error);
+                    showError('Failed to load game state: ' + error.message);
+                    return false;
+                }
+            }
+
+            updateDisplay() {
+                try {
+                    const profileNameDisplay = document.getElementById('profileNameDisplay');
+                    const quizSection = document.getElementById('quizSection');
+                    const inventorySelector = document.getElementById('inventorySelector');
+
+                    if (!profileNameDisplay || !quizSection || !inventorySelector) {
+                        throw new Error('Required UI elements not found');
+                    }
+
+                    // Update profile name display
+                    profileNameDisplay.textContent = `Profile: ${this.name}`;
+                    
+                    // Update score display
+                    const scoreElement = document.getElementById('score');
+                    if (scoreElement) {
+                        scoreElement.textContent = this.score;
+                    }
+
+                    // Update inventory display
+                    this.updateBlockCounts();
+
+                    // Show current question
+                    this.showQuestion();
+                } catch (error) {
+                    console.error('Error updating display:', error);
+                    showError('Failed to update game display: ' + error.message);
+                }
             }
 
             async loadVocabulary() {
