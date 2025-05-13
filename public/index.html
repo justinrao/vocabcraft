@@ -658,6 +658,17 @@
                     quizSection.classList.remove('visible');
                 }
                 if (buildingArea) {
+                    // Remove all blocks and characters from building area
+                    const existingCharacter = buildingArea.querySelector('.character');
+                    if (existingCharacter) {
+                        existingCharacter.remove();
+                    }
+                    
+                    // Remove all blocks
+                    const blocks = buildingArea.querySelectorAll('.block');
+                    blocks.forEach(block => block.remove());
+                    
+                    // Re-add the inventory selector
                     buildingArea.innerHTML = '<div class="inventory-selector" id="inventorySelector"></div>';
                     buildingArea.classList.remove('visible');
                 }
@@ -1363,8 +1374,15 @@
             }
 
             createCharacter() {
+                // First remove any existing character
+                const existingCharacter = document.querySelector('.character');
+                if (existingCharacter) {
+                    existingCharacter.remove();
+                }
+
                 const character = document.createElement('div');
                 character.className = 'character';
+                character.style.zIndex = '1000'; // Ensure character is always on top
 
                 const head = document.createElement('div');
                 head.className = 'character-head';
@@ -1397,7 +1415,11 @@
 
                 character.style.left = this.posX + 'px';
                 character.style.top = this.posY + 'px';
-                document.getElementById('buildingArea').appendChild(character);
+                
+                const buildingArea = document.getElementById('buildingArea');
+                if (buildingArea) {
+                    buildingArea.appendChild(character);
+                }
 
                 return character;
             }
