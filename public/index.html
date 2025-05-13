@@ -1539,25 +1539,47 @@
 
             async loadVocabulary() {
                 try {
-                    // Try to load from the same directory first (for local development)
-                    const response = await fetch('./vocabulary.json');
+                    // Try loading from the current path first
+                    const response = await fetch('/vocabulary.json');
                     if (!response.ok) {
-                        // If that fails, try loading from the GitHub Pages URL
-                        const githubResponse = await fetch('https://justinrao.github.io/vocabcraft/vocabulary.json');
-                        if (!githubResponse.ok) {
-                            throw new Error('Failed to load vocabulary');
-                        }
-                        const data = await githubResponse.json();
-                        this.vocabulary = data.vocabulary;
-                    } else {
-                        const data = await response.json();
-                        this.vocabulary = data.vocabulary;
+                        throw new Error(`Failed to load vocabulary: ${response.status} ${response.statusText}`);
                     }
-                    console.log('Vocabulary loaded successfully:', this.vocabulary);
+                    const data = await response.json();
+                    if (!data || !data.vocabulary || !Array.isArray(data.vocabulary)) {
+                        throw new Error('Invalid vocabulary data format');
+                    }
+                    this.vocabulary = data.vocabulary;
+                    console.log('Vocabulary loaded successfully:', this.vocabulary.length, 'words');
                 } catch (error) {
                     console.error('Error loading vocabulary:', error);
+                    // Show error message to user
+                    const errorMessage = document.createElement('div');
+                    errorMessage.style.cssText = `
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background-color: rgba(244, 67, 54, 0.9);
+                        color: white;
+                        padding: 20px;
+                        border-radius: 10px;
+                        z-index: 2000;
+                        font-family: 'VT323', monospace;
+                        font-size: 1.2em;
+                        text-align: center;
+                        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                        max-width: 80%;
+                    `;
+                    errorMessage.innerHTML = `
+                        <h3 style="margin-top: 0;">Error Loading Vocabulary</h3>
+                        <p>${error.message}</p>
+                        <p>Please try refreshing the page. If the problem persists, contact support.</p>
+                    `;
+                    document.body.appendChild(errorMessage);
+                    
                     // Fallback to empty vocabulary
                     this.vocabulary = [];
+                    throw error;
                 }
             }
 
