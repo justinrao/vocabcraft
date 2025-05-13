@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VocabCraft</title>
+    <link rel="stylesheet" href="src/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="gameContainer" class="game-container">
+        <!-- Quiz Section -->
+        <div id="quizSection" class="quiz-section">
+            <h1>VocabCraft</h1>
+            <div id="questionContainer">
+                <p id="questionText"></p>
+                <div id="optionsContainer"></div>
+            </div>
+            <div id="scoreDisplay">Score: 0</div>
+        </div>
+
+        <!-- Building Section -->
+        <div id="buildingSection" class="building-section">
+            <div id="buildingArea"></div>
+            <div id="inventorySelector" class="inventory-selector"></div>
+        </div>
+
+        <!-- Mobile Controls -->
+        <div class="mobile-controls">
+            <div class="d-pad">
+                <button id="upButton">↑</button>
+                <button id="leftButton">←</button>
+                <button id="rightButton">→</button>
+                <button id="downButton">↓</button>
+            </div>
+            <div class="action-buttons">
+                <button id="mineButton">Mine</button>
+                <button id="placeButton">Place</button>
+            </div>
+        </div>
+
+        <!-- Profile Container -->
+        <div id="profileContainer" class="profile-container">
+            <h1>VocabCraft</h1>
+            <div class="profile-section">
+                <h2>Select or Create Profile</h2>
+                <form id="newProfileForm">
+                    <input type="text" id="newProfileName" placeholder="Enter profile name" required>
+                    <button type="submit">Create New Profile</button>
+                </form>
+                <div id="profileList" class="profile-list"></div>
+            </div>
+        </div>
+
+        <!-- Game Controls -->
+        <div class="game-controls">
+            <button id="buildingToggle">Show Building Area</button>
+            <div id="profileNameDisplay"></div>
+            <button id="exitButton">Exit to Profile</button>
+        </div>
+
+        <!-- Save Indicator -->
+        <div id="saveIndicator" class="save-indicator">Game Saved!</div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <!-- Game Scripts -->
+    <script type="module" src="src/js/main.js"></script>
+</body>
+
+</html>
