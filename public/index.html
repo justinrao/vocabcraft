@@ -466,7 +466,7 @@
                 }
 
                 this.renderProfileList();
-                return true;
+                return profileId; // Return the profileId instead of boolean
             }
 
             async deleteProfile(profileId) {
@@ -540,11 +540,11 @@
 
                     const profileName = document.createElement('div');
                     profileName.className = 'profile-name';
-                    profileName.textContent = data.name;
+                    profileName.textContent = data.name || 'Unnamed Profile';
 
                     const profileStats = document.createElement('div');
                     profileStats.className = 'profile-stats';
-                    profileStats.textContent = `Score: ${data.score} | Last saved: ${new Date(data.lastSaved).toLocaleString()}`;
+                    profileStats.textContent = `Score: ${data.score || 0} | Last saved: ${new Date(data.lastSaved).toLocaleString()}`;
 
                     const deleteButton = document.createElement('button');
                     deleteButton.className = 'delete-profile';
@@ -572,7 +572,7 @@
                 }, 2000);
             }
 
-            startGame(profileId) {
+            async startGame(profileId) {
                 console.log('Starting game for profile:', profileId);
                 const gameState = this.profiles[profileId];
                 if (!gameState) {
@@ -625,7 +625,7 @@
 
                 // Initialize new game
                 console.log('Creating new game instance');
-                window.game = new VocabCraft(this, gameState.name);
+                window.game = new VocabCraft(this, profileId);
 
                 // Update profile name display with the actual profile name
                 profileNameDisplay.textContent = `Profile: ${gameState.name}`;
@@ -1800,9 +1800,10 @@
             const name = nameInput.value.trim();
 
             if (name) {
-                if (await profileManager.createProfile(name)) {
+                const profileId = await profileManager.createProfile(name);
+                if (profileId) {
                     nameInput.value = '';
-                    startGame(name);
+                    startGame(profileId);
                 } else {
                     alert('A profile with this name already exists!');
                 }
@@ -1811,9 +1812,9 @@
             }
         }
 
-        async function startGame(profileName) {
+        async function startGame(profileId) {
             if (profileManager) {
-                await profileManager.startGame(profileName);
+                await profileManager.startGame(profileId);
             }
         }
 
@@ -1858,7 +1859,7 @@
                     case 'Enter':
                         e.preventDefault();
                         if (currentIndex !== -1) {
-                            const profileId = profiles[currentIndex].querySelector('.profile-info').textContent.split('\n')[0];
+                            const profileId = profiles[currentIndex].dataset.profileId;
                             startGame(profileId);
                         }
                         break;
