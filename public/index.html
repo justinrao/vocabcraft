@@ -753,15 +753,23 @@
                     const mobileControls = document.querySelector('.mobile-controls');
                     
                     if (buildingToggle && buildingArea && quizSection) {
-                        buildingToggle.addEventListener('click', () => {
+                        // Remove any existing event listeners
+                        const newBuildingToggle = buildingToggle.cloneNode(true);
+                        buildingToggle.parentNode.replaceChild(newBuildingToggle, buildingToggle);
+
+                        newBuildingToggle.addEventListener('click', (e) => {
+                            e.preventDefault(); // Prevent any default behavior
+                            e.stopPropagation(); // Stop event bubbling
+                            
                             const isBuildingVisible = buildingArea.classList.contains('visible');
+                            console.log('Toggle clicked, current state:', isBuildingVisible ? 'Building' : 'Quiz');
                             
                             // Toggle views
                             if (isBuildingVisible) {
                                 // Switch to quiz view
                                 buildingArea.classList.remove('visible');
                                 quizSection.classList.add('visible');
-                                buildingToggle.textContent = 'Show Building Area';
+                                newBuildingToggle.textContent = 'Show Building Area';
                                 
                                 // Hide mobile controls
                                 if (mobileControls) {
@@ -774,7 +782,7 @@
                                 // Switch to building view
                                 quizSection.classList.remove('visible');
                                 buildingArea.classList.add('visible');
-                                buildingToggle.textContent = 'Show Quiz';
+                                newBuildingToggle.textContent = 'Show Quiz';
                                 
                                 // Show mobile controls
                                 if (mobileControls) {
@@ -787,6 +795,11 @@
                             
                             console.log('View switched:', isBuildingVisible ? 'Quiz' : 'Building');
                         });
+
+                        // Set initial state
+                        quizSection.classList.add('visible');
+                        buildingArea.classList.remove('visible');
+                        newBuildingToggle.textContent = 'Show Building Area';
                     }
 
                     // Initialize game components
