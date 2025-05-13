@@ -704,10 +704,10 @@
 
         // Game class update
         class VocabCraft {
-            constructor(profileManager, profileName) {
-                console.log('Initializing VocabCraft with profile:', profileName);
+            constructor(profileManager, profileId) {
+                console.log('Initializing VocabCraft with profile:', profileId);
                 this.profileManager = profileManager;
-                this.profileName = profileName;
+                this.profileId = profileId;
                 this.vocabulary = [];
                 this.currentQuestion = 0;
                 this.score = 0;
@@ -809,7 +809,7 @@
                     }
 
                     // Set up UI elements
-                    profileNameDisplay.textContent = `Profile: ${this.profileName}`;
+                    profileNameDisplay.textContent = `Profile: ${this.name}`;
                     quizSection.style.display = 'block';
                     inventorySelector.style.display = 'flex';
 
@@ -854,6 +854,8 @@
                 }
 
                 this.score = gameState.score || 0;
+                this.name = gameState.name;
+
                 // Use questionId if available, otherwise fallback to index
                 if (gameState.currentQuestionId) {
                     const idx = this.vocabulary.findIndex(q => q.id === gameState.currentQuestionId);
@@ -937,6 +939,7 @@
 
                 const gameState = {
                     score: this.score,
+                    name: this.name,
                     currentQuestionId: this.vocabulary[this.currentQuestion]?.id || null,
                     currentQuestion: this.currentQuestion,
                     blockCounts: currentBlockCounts,
